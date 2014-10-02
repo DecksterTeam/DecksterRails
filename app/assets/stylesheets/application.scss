@@ -2750,17 +2750,17 @@ display: block;
 
 /* Photo Card Summary */
 
-.device_photos_summary {
+.deckster_photos_summary {
   display: block;
   height: 120px;
   
-  .device_photos_preview {
+  .deckster_photos_preview {
     float: left;
     width: 50%;
     height: 120px;
     position: relative;
     
-    .device_photos_summary_photos {
+    .deckster_photos_summary_photos {
       display: block;
       position: absolute;
       top: 50%;
@@ -2774,7 +2774,7 @@ display: block;
       -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.6);
       box-shadow: 0 1px 3px rgba(0,0,0,0.6);
 
-      .device_photos_summary_photo {
+      .deckster_photos_summary_photo {
         display: block;
         height: 80px;
         width: 105px;
@@ -2807,7 +2807,7 @@ display: block;
     }
   }
 
-  .device_photos_count {
+  .deckster_photos_count {
     float: left;
     width: 50%;
     height: 120px;
@@ -2827,7 +2827,7 @@ display: block;
   background: darken($secondary,10%);
   margin: 0 0 20px 0;
 
-  .device_photos_preview {
+  .deckster_photos_preview {
     position: relative;
     z-index: 1;
     
@@ -3008,13 +3008,13 @@ display: block;
   
 }
 
-.content .detail .device_photos_scroll {
+.content .detail .deckster_photos_scroll {
   position: relative;
   display: block;
   overflow-y: auto;
 }
 
-.content .detail ol.device_photos_thumbs {
+.content .detail ol.deckster_photos_thumbs {
   text-align: left;
   
   li {
