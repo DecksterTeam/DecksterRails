@@ -26,7 +26,5 @@ Mtheory::Application.configure do
   # Expands the lines which load the assets
   config.assets.debug = true
 
-  config.basic_auth = true
-  config.auth_username = "mtheory"
-  config.auth_password = "eliwhitney"
+  config.basic_auth = false
 end
