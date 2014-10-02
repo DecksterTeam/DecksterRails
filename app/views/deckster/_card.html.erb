@@ -1,0 +1,15 @@
+<li id="<%= sym %>" class="deckster-card" data-col="<%= col %>" data-row="<%= row %>" data-sizex="<%= sizex %>" data-sizey="<%= sizey %>" data-title="<%= title %>">
+  <div class="deckster-card-title">
+    <%= title %>
+  </div>
+  <div class="deckster-controls">
+    <a title="Popout" class="deckster-popout-handle control popout" style="display: none"></a>
+    <a title='Expand' class='deckster-expand-handle control expand'></a>
+  </div>
+  <div class="content">
+    <div class="summary">
+      <%= summary_html %>
+    </div>
+    <%= detail_html %>
+  </div>
+</li>

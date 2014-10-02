@@ -1,0 +1,109 @@
+# sDom --> 
+# T = Table Tools (copy, print, etc)
+# R = Column Reorder
+# C = Column Visibility
+# l = Show ? entries
+# f = Main filter bar
+# r = Processing
+# t = Table
+# i = Info 
+# p = Pagination
+
+to_aoColumns = (columns) ->
+    aoColumns = []
+    for col in columns
+        aoColumns.push { 'mDataProp': col }
+    aoColumns
+
+bind_filter_keyup = (datatable, $filter_inputs) ->
+    $filter_inputs.each () ->
+        $input = $(this)
+        $input.attr 'data-inited', true
+        col = $input.attr 'data-col'
+
+        if col
+            $input.val datatable?.dataTableSettings?[0]?.aoPreSearchCols?[parseInt col].sSearch
+            $input.keyup (e)->
+                datatable.fnFilter $input.val(), col if e.which == 13
+        else
+            $input.keyup (e)->
+                datatable.fnFilter $input.val() if e.which == 13
+
+init_field_filter = (datatable) ->
+    bind_filter_keyup datatable, $(datatable).parents('.dataTables_wrapper').find('.topbar > .dataTables_filter > label > input:not([data-inited])').unbind()
+    bind_filter_keyup datatable, $(datatable).parent().siblings('.dataTables_scrollFoot').find('th > input:not([data-inited])')
+
+clear = (datatable) ->
+    if datatable?.dataTableSettings?[0]?.aoPreSearchCols?
+        for col in datatable.dataTableSettings[0].aoPreSearchCols
+            col.sSearch = ''
+    if datatable?.dataTableSettings?[0]?.oPreviousSearch?.sSearch?
+        datatable.dataTableSettings[0].oPreviousSearch.sSearch = ''
+    datatable.fnDraw()
+    $(datatable).parent().siblings('.dataTables_scrollFoot').find('th > input').val ''
+    $(datatable).parents('.dataTables_wrapper').find('.dataTables_filter').find('input').val ''
+
+init = (jquery_selector, aoColumns, url, default_sort_column, default_sort_order, height, custom_response_callback) ->
+    datatable_params =
+        'bServerSide': true
+        'sAjaxSource': url
+        'oLanguage':
+            'sSearch': 'Filter by'
+        'oTableTools':
+            'sSwfPath': '<%= asset_path 'copy_csv_xls_pdf.swf' %>'
+        'sDom': '<"topbar" <"tools" <"export dropdown" T> RC> lf>rt<"btmbar" ip>'
+        'iDisplayLength': 25
+        'aLengthMenu': [25, 100, 250, 500, 1000]
+        'sPaginationType': 'full_numbers'
+        'aaSorting': [
+            [default_sort_column || 0, default_sort_order || 'desc']
+        ]
+        'bInfo': true
+        'bProcessing': true
+        'bStateSave': true # CHANGE THIS !!!
+        'bAutoWidth': false
+        'sScrollY': height || '1px'
+        'aoColumns': aoColumns
+        'oColVis':
+            'fnStateChange': () ->
+                init_field_filter(datatable)
+        'fnServerData': (sSource, aoData, fnCallback, oSettings) ->
+            ajax_params =
+                'dataType': 'json'
+                'type': 'GET',
+                'url': sSource,
+                'data': aoData,
+                'success': (response) ->
+                    custom_response_callback(response) if custom_response_callback
+                    fnCallback(response)
+
+            oSettings.jqXHR = $.ajax ajax_params
+
+    datatable = $(jquery_selector).dataTable datatable_params
+    init_field_filter(datatable)
+
+    $(jquery_selector).parents('.dataTables_wrapper').find('.topbar').append '<a class="clear-button">Clear All</a>'
+    $clear = $(jquery_selector).parents('.dataTables_wrapper').find '.topbar > .clear-button'
+    $clear.click () ->
+        clear datatable
+
+    unless height
+        initial_view_mode_height = $('.view-mode').height()
+        on_resize = () ->
+            height = $(window).height() - initial_view_mode_height
+            table = $(jquery_selector).parent('.dataTables_scrollBody')
+
+            table.height height
+            datatable.fnAdjustColumnSizing()
+
+        $(window).resize () ->
+            clearTimeout window.refresh_size
+            window.refresh_size = setTimeout(() ->
+                    on_resize()
+                250)
+            on_resize
+        on_resize()
+
+window.table =
+    init: init
+    to_aoColumns: to_aoColumns

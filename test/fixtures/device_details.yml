@@ -1,0 +1,23 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  device_id: MyString
+  name: MyString
+  mac_addr: MyString
+  make: MyString
+  model: MyString
+  os: MyString
+  os_version: MyString
+  ip_addr: MyString
+  first_seen: 2013-03-28 16:16:48
+
+two:
+  device_id: MyString
+  name: MyString
+  mac_addr: MyString
+  make: MyString
+  model: MyString
+  os: MyString
+  os_version: MyString
+  ip_addr: MyString
+  first_seen: 2013-03-28 16:16:48

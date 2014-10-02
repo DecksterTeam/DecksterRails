@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html class="">
+<head>
+  <title>KICKAWESOME</title>
+  <%= render '/layouts/head' %>
+  <%= render '/layouts/lowside' %>
+</head>
+<body class="view-mode">
+<%= render_classification_banner %>
+
+<%= render '/layouts/navbar' %>
+<div class="wide-card">
+  <%= yield %>
+</div>
+
+<%= render_classification_banner %>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $(window).ajaxLoadingBar();
+    });
+</script>
+</body>
+</html>
