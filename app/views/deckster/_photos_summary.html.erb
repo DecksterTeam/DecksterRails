@@ -1,0 +1,23 @@
+<div class="deckster_photos_summary">
+  <div class="deckster_photos_preview">
+    <div class="deckster_photos_summary_photos rotate"></div>
+    <div class="deckster_photos_summary_photos">
+      <img class="deckster_photos_summary_photo_loader" style="display: none;"/>
+      <div class="deckster_photos_summary_photo" >
+        <div class="this_photo"></div>
+      </div>
+    </div>
+  </div>
+  <div class="deckster_photos_count">
+    <%= deckster_photo_docs.count %>
+  </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        window.svg_icons.init();
+        $('[data-toggle="tooltip"]').tooltip();
+
+        window.deckster_photos.summary_init(<%= deckster_photo_docs.to_json.html_safe %>);
+    });
+</script>
