@@ -1,6 +1,8 @@
 Mtheory::Application.routes.draw do
   root to: "dashboard#index"
 
+  match 'deckster_card/:id' => 'deckster#card', as: :deckster_card, via: :all
+
   match 'dashboard' => 'dashboard#index', as: :dashboard, via: :all
 
   get 'streaming/notifications', to: 'streaming#notifications'
