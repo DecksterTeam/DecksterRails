@@ -33,17 +33,29 @@ module DecksterHelper
   end
 
   def render_deckster_summary_card card_config
-    content = ([:async, :summary_async].include? card_config[:load]) ?
-        'Loading ...' : send("render_#{card_config[:card]}_summary_card".to_sym)
+    case
+      when [:async, :summary_async].include?(card_config[:load])
+        content = 'Loading ...'
+        loaded = false
+      else
+        content = send "render_#{card_config[:card]}_summary_card".to_sym
+        loaded = true
+    end
 
-    "<div class='summary' data-summary-url='#{card_config[:summary_url]}'>#{content}</div>".html_safe
+    "<div class='summary' data-summary-url='#{card_config[:summary_url]}' data-content-loaded=#{loaded}>#{content}</div>".html_safe
   end
 
   def render_deckster_detail_card card_config
-    content = ([:async, :detail_async].include? card_config[:load]) ?
-        'Loading ...' : send("render_#{card_config[:card]}_detail_card".to_sym)
+    case
+      when [:async, :detail_async].include?(card_config[:load])
+        content = 'Loading ...'
+        loaded = false
+      else
+        content = send "render_#{card_config[:card]}_detail_card".to_sym
+        loaded = true
+    end
 
-    "<div class='detail' style='display:none;' data-detail-url='#{card_config[:detail_url]}'>#{content}</div>".html_safe
+    "<div class='detail' style='display:none;' data-detail-url='#{card_config[:detail_url]}' data-content-loaded=#{loaded}>#{content}</div>".html_safe
   end
   
   def render_deckster_count_card count_configs

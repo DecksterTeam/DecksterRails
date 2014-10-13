@@ -11,6 +11,20 @@ init = () ->
 
   gridster = $(".gridster").gridster(gridster_options).data 'gridster'
 
+  window.grid = gridster
+
+  gridster.$widgets.each () ->
+    $widget = $(this)
+    $card_content_summary = $widget.find('.content > .summary')
+    card_content_summary_loaded = $card_content_summary.attr 'data-content-loaded'
+    if card_content_summary_loaded == false || card_content_summary_loaded == 'false'
+      card_content_summary_loaded_url = $card_content_summary.attr 'data-summary-url'
+      if card_content_summary_loaded_url?
+        on_response = (response) ->
+          $card_content_summary.html response
+          $card_content_summary.attr 'data-content-loaded', true
+        $.get card_content_summary_loaded_url, on_response, 'html'
+
   gridster.$el.on 'click', '> li > .deckster-controls > .deckster-expand-handle', () ->
     $button = $(this)
     $widget = $button.parents 'li'
@@ -41,7 +55,7 @@ init = () ->
 
       card_content_detail_loaded = $card_content_detail.attr 'data-content-loaded'
       card_content_detail_loaded ?= false
-      if card_content_detail_loaded == false
+      if card_content_detail_loaded == false || card_content_detail_loaded == 'false'
         card_content_detail_loaded_url = $card_content_detail.attr 'data-detail-url'
         if card_content_detail_loaded_url?
           on_response = (response) ->
