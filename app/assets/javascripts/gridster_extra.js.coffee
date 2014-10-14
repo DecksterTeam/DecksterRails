@@ -69,7 +69,7 @@ init = () ->
 
     url = $widget.find('.detail').attr('data-detail-url')
     title = $widget.attr 'data-title'
-    window.open(url + '&popout=true&title=' + title, '_blank').focus()
+    window.open(url + '?popout=true&title=' + title, '_blank').focus()
 
 
 window.gridster_extra =

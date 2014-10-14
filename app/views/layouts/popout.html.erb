@@ -1,30 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <% ensure_devices_retrieved %>
-  <title>KICKAWESOME - <%= "#{params[:title].titleize} - #{(@device_ids.count == 1) ? @device_ids.first : "Aggregate"}" %></title>
+  <title>DECKSTER</title>
   <%= render '/layouts/head' %>
-  <%= render '/layouts/lowside' %>
 </head>
 <body class="view-mode standalone">
-<%= render_classification_banner %>
 
 <%= render '/layouts/navbar' %>
 <div class="heading">
-  <div id="content" class="container" style="padding-top: 25px;">
-    <div id="deck1" class="deckster-deck" data-col-max="4" data-draggable="false" data-droppable="false" data-expandable="false" data-cards-expanded="false" data-title="" data-removable="false" data-remove-empty="false">
-      <div class="deckster-card" data-col="1" data-row="1" data-col-span="4" data-row-span="6" data-expanded="false">
-        <div class="deckster-card-title"><%= "#{params[:title]} - #{(@device_ids.count == 1) ? @device_ids.first : "Aggregate"}" %></div>
-        <div class="content">
-          <div class="detail">
-          <%= yield %>
-          </div>
+  <div id="content" class="container">
+    <div class="deckster-deck-container">
+      <li class="deckster-card" data-col="4" data-row="1" data-sizex="4" data-sizey="6" data-title="<%= params[:title] %>">
+        <div class="deckster-card-title">
+          <%= params[:title] %>
         </div>
-      </div>
+        <div class="deckster-controls">
+        </div>
+        <div class="content">
+          <%= yield %>
+        </div>
+      </li>
     </div>
   </div>
 </div>
 
-<%= render_classification_banner %>
 </body>
 </html>
