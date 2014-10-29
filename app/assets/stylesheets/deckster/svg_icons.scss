@@ -1,0 +1,60 @@
+/* Variables */
+
+$text:		#c1c2c3;
+$primary: 	#282b31;
+$secondary: #3d4146;
+$green: 	#83b53b;
+$blue:		#5491ba;
+$red:		#dd4444;
+$yellow:	#d6d82a;
+
+$imgdir: 	light;
+
+/* Variables */
+
+.icon {
+	path {
+		height: 100%;
+		width: 100%;
+	}
+}
+	
+.large {
+	width: 75px;
+	
+	.icon {
+		width: 75px;
+		height: 70px;
+		margin: 0 0 0 5px;
+
+		path {
+			fill: $green;
+		}
+	}
+}
+
+.medium {
+	width: 60px;
+	
+	.icon {
+		width: 60px;
+		height: 70px;
+		
+		path {
+			fill: $blue;
+		}
+	}
+}
+
+.small {
+	width: 40px;
+	
+	.icon {
+		width: 40px;
+		height: 70px;
+		
+		path {
+			fill: lighten($secondary,30%);
+		}
+	}
+}

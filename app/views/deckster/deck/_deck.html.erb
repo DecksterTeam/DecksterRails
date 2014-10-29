@@ -1,0 +1,8 @@
+<div id="<%= deck_sym %>" class="gridster deckster-deck">
+  <%= card_contents.join.html_safe %>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        window.decksterjs.init()
+    });
+</script>
