@@ -1,0 +1,11 @@
+<div>
+  <% count_configs.each do |count_config| %>
+      <i class="fa fa-<%= count_config[:icon] %> fa-5x" title="<%= count_config[:title] || count_config[:icon].to_s.titleize %>" data-toggle="tooltip"></i>
+      <span class="count"><%= count_config[:count] || 0 %></span>
+  <% end %>
+</div>
+<script>
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    });
+</script>

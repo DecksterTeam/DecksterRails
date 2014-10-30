@@ -1,0 +1,15 @@
+<div class="deckster-card well well-lg gs-w">
+  <nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid deckster-card-title">
+      <div class="navbar-header">
+        <span class="navbar-brand"><%= params[:title] %></span></div>
+      <ul class="nav navbar-nav navbar-right deckster-controls">
+      </ul>
+    </div>
+  </nav>
+  <div class="deckster-content">
+    <div class="summary">
+      <%= yield %>
+    </div>
+  </div>
+</div>
