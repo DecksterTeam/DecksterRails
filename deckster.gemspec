@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.version     = Deckster::VERSION
   s.authors     = ["Greg Hochard"]
   s.email       = ["hochardga@gmail.com"]
-  s.homepage    = "TODO"
+  s.homepage    = "http://decksterteam.github.io/DecksterRails/"
   s.summary     = "TODO: Summary of Deckster."
   s.description = "TODO: Description of Deckster."
 
