@@ -1,4 +1,4 @@
-init = () ->
+init = (custom_opts={}) ->
   gridster_options =
     widget_selector: '.deckster-card'
     widget_margins: [10, 10]
@@ -10,6 +10,8 @@ init = () ->
     #helper: 'clone'
     draggable:
       handle: '.deckster-card-title, .deckster-card-draggable'
+
+  $.extend(gridster_options, custom_opts)
 
   gridster = $(".gridster").gridster(gridster_options).data 'gridster'
 

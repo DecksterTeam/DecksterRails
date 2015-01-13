@@ -15,3 +15,4 @@
 //= require deckster/bootstrap-sprockets
 //= require deckster/gridster
 //= require deckster/decksterjs
+//= require deckster/d3

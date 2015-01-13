@@ -1,8 +1,8 @@
 module Deckster
   module DeckHelper
-    def render_deckster_deck deck_sym, card_configs
+    def render_deckster_deck deck_sym, card_configs, gridster_opts={}
       card_contents = card_configs.collect { |card_config| render_deckster_card card_config }
-      render partial: "deckster/deck/deck", locals: {deck_sym: deck_sym, card_contents: card_contents}
+      render partial: "deckster/deck/deck", locals: {deck_sym: deck_sym, card_contents: card_contents, gridster_opts: gridster_opts}
     end
 
     def render_deckster_card card_config
