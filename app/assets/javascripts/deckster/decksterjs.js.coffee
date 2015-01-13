@@ -9,7 +9,7 @@ init = () ->
     #max_size_x: 4
     #helper: 'clone'
     draggable:
-      handle: '.deckster-card-title'
+      handle: '.deckster-card-title, .deckster-card-draggable'
 
   gridster = $(".gridster").gridster(gridster_options).data 'gridster'
 
@@ -37,6 +37,7 @@ init = () ->
       gridster.collapse_widget $widget
       $widget.find('.deckster-expand-handle').show()
       $widget.find('.deckster-popout-handle').hide()
+      $widget.find('.deckster-refresh-handle').hide()
       $widget.find('.deckster-collapse-handle').hide()
 
       $card_content = $widget.children '.deckster-content'
@@ -50,6 +51,7 @@ init = () ->
       gridster.expand_widget $widget, 4
       $widget.find('.deckster-expand-handle').hide()
       $widget.find('.deckster-popout-handle').show()
+      $widget.find('.deckster-refresh-handle').show()
       $widget.find('.deckster-collapse-handle').show()
 
       $card_content = $widget.children '.deckster-content'
@@ -77,8 +79,43 @@ init = () ->
 
     url = $widget.find('.deckster-detail').attr('data-detail-url')
     console.log url
-    title = $widget.attr 'data-title'
-    window.open(url + '&title=' + title, '_blank').focus()
+
+    splitUrl = url.split('?')
+    path = splitUrl[0]
+    initialparams = splitUrl[1].split('&')
+    params = {}
+
+    for index of initialparams
+      temp = initialparams[index].split('=')
+      params[temp[0]] = temp[1]
+
+    params['title'] = $widget.attr 'data-title'
+    params['layout'] = true
+
+    paramArray = []
+    paramArray.push "#{key}=#{value}" for key,value of params
+
+    window.open("#{path}?#{paramArray.join('&')}", '_blank').focus()
+
+  gridster.$el.on 'click', '> .deckster-card .deckster-controls .deckster-refresh-handle', () ->
+    $button = $(this)
+    $widget = $button.parents '.deckster-card'
+
+#    USE THIS IF YOU ONLY WANT TO REFRESH ONE VIEW INSTEAD OF BOTH
+#    is_expanded = $widget.attr 'data-expanded'
+#    $card_type = if is_expanded then 'detail' else 'summary'
+
+    card_types = ['detail', 'summary']
+    for card_type in card_types
+      card_content_obj = $widget.find(".deckster-content > .deckster-#{card_type}")
+      card_content_url = card_content_obj.attr "data-#{card_type}-url"
+
+      if card_content_url?
+        on_response = (response) ->
+          card = this
+          card.html response
+          card.attr 'data-content-loaded', true
+        $.get card_content_url, $.proxy(on_response, card_content_obj), 'html'
 
 
 window.decksterjs =
