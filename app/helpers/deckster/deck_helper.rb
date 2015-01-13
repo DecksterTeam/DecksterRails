@@ -15,6 +15,7 @@ module Deckster
       #    :async => Summary and Detail are both load asynchronously
       # :summary_url => convention override for the summary card
       # :detail_url => convention override for the detail card
+      # :card_classes => custom css class(es) to add to the card wrapper
 
       card_config[:title] ||= card_config[:card].to_s.titleize
       card_config[:load] ||= :fully
@@ -29,7 +30,8 @@ module Deckster
           sym: card_config[:card], title: card_config[:title], tooltip: card_config[:tooltip],
           summary_html: summary_html,
           detail_html: detail_html,
-          row: card_config[:row], col: card_config[:col], sizex: card_config[:sizex], sizey: card_config[:sizey]
+          row: card_config[:row], col: card_config[:col], sizex: card_config[:sizex],
+          sizey: card_config[:sizey], card_classes: card_config[:card_classes]
       }
     end
 
