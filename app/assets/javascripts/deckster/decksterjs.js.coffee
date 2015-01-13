@@ -81,23 +81,8 @@ init = (custom_opts={}) ->
 
     url = $widget.find('.deckster-detail').attr('data-detail-url')
     console.log url
-
-    splitUrl = url.split('?')
-    path = splitUrl[0]
-    initialparams = splitUrl[1].split('&')
-    params = {}
-
-    for index of initialparams
-      temp = initialparams[index].split('=')
-      params[temp[0]] = temp[1]
-
-    params['title'] = $widget.attr 'data-title'
-    params['layout'] = true
-
-    paramArray = []
-    paramArray.push "#{key}=#{value}" for key,value of params
-
-    window.open("#{path}?#{paramArray.join('&')}", '_blank').focus()
+    title = $widget.attr 'data-title'
+    window.open(url + '&title=' + title, '_blank').focus()
 
   gridster.$el.on 'click', '> .deckster-card .deckster-controls .deckster-refresh-handle', () ->
     $button = $(this)
