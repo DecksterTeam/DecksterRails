@@ -3,6 +3,6 @@
 </div>
 <script type="text/javascript">
     $(document).ready(function () {
-        window.decksterjs.init()
+        window.decksterjs.init(<%= gridster_opts.to_json.html_safe %>)
     });
 </script>
