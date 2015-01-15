@@ -1,3 +1,6 @@
+trigger_event = (el, event) ->
+  $(el).trigger(event)
+
 init = (custom_opts={}) ->
   gridster_options =
     widget_selector: '.deckster-card'
@@ -27,6 +30,7 @@ init = (custom_opts={}) ->
         on_response = (response) ->
           $card_content_summary.html response
           $card_content_summary.attr 'data-content-loaded', true
+          trigger_event($card_content_summary, 'deckster.card-summary.loaded')
         $.get card_content_summary_loaded_url, on_response, 'html'
 
   gridster.$el.on 'click', '> .deckster-card .deckster-controls .deckster-expand-collapse-handle', () ->
@@ -46,7 +50,7 @@ init = (custom_opts={}) ->
       $card_content_detail = $card_content.children '.deckster-detail'
 
       $card_content_detail.fadeOut()
-      $card_content_summary.fadeIn()
+      $card_content_summary.fadeIn({complete: trigger_event($card_content, 'deckster.card-summary.shown')})
     else
       $widget.attr 'data-expanded', true
       gridster.expand_widget $widget, 4
@@ -61,7 +65,7 @@ init = (custom_opts={}) ->
       console.log [$card_content_summary, $card_content_detail]
 
       $card_content_summary.fadeOut()
-      $card_content_detail.fadeIn();
+      $card_content_detail.fadeIn({complete: trigger_event($card_content, 'deckster.card-detail.shown')});
 
       card_content_detail_loaded = $card_content_detail.attr 'data-content-loaded'
       card_content_detail_loaded ?= false
@@ -71,6 +75,7 @@ init = (custom_opts={}) ->
           on_response = (response) ->
             $card_content_detail.html response
             $card_content_detail.attr 'data-content-loaded', true
+            trigger_event($card_content_detail, 'deckster.card-detail.loaded')
           $.get card_content_detail_loaded_url, on_response, 'html'
 
   gridster.$el.on 'click', '> .deckster-card .deckster-controls .deckster-popout-handle', () ->
