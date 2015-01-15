@@ -9,7 +9,7 @@ init = (custom_opts={}) ->
     #max_size_x: 4
     #helper: 'clone'
     draggable:
-      handle: '.deckster-card-title'
+      handle: '.deckster-card-title, .deckster-card-draggable'
 
   $.extend(gridster_options, custom_opts)
 
@@ -39,6 +39,7 @@ init = (custom_opts={}) ->
       gridster.collapse_widget $widget
       $widget.find('.deckster-expand-handle').show()
       $widget.find('.deckster-popout-handle').hide()
+      $widget.find('.deckster-refresh-handle').hide()
       $widget.find('.deckster-collapse-handle').hide()
 
       $card_content = $widget.children '.deckster-content'
@@ -52,6 +53,7 @@ init = (custom_opts={}) ->
       gridster.expand_widget $widget, 4
       $widget.find('.deckster-expand-handle').hide()
       $widget.find('.deckster-popout-handle').show()
+      $widget.find('.deckster-refresh-handle').show()
       $widget.find('.deckster-collapse-handle').show()
 
       $card_content = $widget.children '.deckster-content'
@@ -79,9 +81,32 @@ init = (custom_opts={}) ->
 
     url = $widget.find('.deckster-detail').attr('data-detail-url')
     console.log url
-    title = $widget.attr 'data-title'
-    window.open(url + '&title=' + title, '_blank').focus()
 
+  gridster.$el.on 'click', '> .deckster-card .deckster-controls .deckster-refresh-handle', () ->
+    $button = $(this)
+    $widget = $button.parents '.deckster-card'
+    refreshCard($widget)
+
+refreshCard = ($widget) ->
+#    USE THIS IF YOU ONLY WANT TO REFRESH ONE VIEW INSTEAD OF BOTH
+#    is_expanded = $widget.attr 'data-expanded'
+#    $card_type = if is_expanded then 'detail' else 'summary'
+
+  card_types = ['detail', 'summary']
+  for card_type in card_types
+    card_content_obj = $widget.find(".deckster-content > .deckster-#{card_type}")
+    card_content_url = card_content_obj.attr "data-#{card_type}-url"
+
+    if card_content_url?
+      on_response = (response) ->
+        card = this
+        card.html response
+        card.attr 'data-content-loaded', true
+      $.get card_content_url, $.proxy(on_response, card_content_obj), 'html'
+
+refreshDeck = () ->
+  $('.deckster-card').each( (index, value)-> refreshCard($(value)) )
 
 window.decksterjs =
   init: init
+  refreshDeck: refreshDeck
