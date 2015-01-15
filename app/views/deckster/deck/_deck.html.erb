@@ -1,10 +1,14 @@
 <% if show_deck_controls %>
-<div data-deck_id="<%= deck_config[:id] %>">
+<div data-deck_id="<%= deck_config[:id] %>" class="deck_controls">
     <!-- I'm sure there's a better way to display this, but... google doesn't want to tell me. QQ -->
     Deck Controls:
     <% if deck_config[:controls].include? 'refresh' %>
         <a title="Refresh" onclick="decksterjs.refreshDeck()"><i class="fa fa-rotate-right"></i></a>
     <% end %>
+
+    <select id="deck_controls_title_search" class="chosen chosen-select" data-placeholder="Find card..." tabindex="-1">
+        <option value></option>
+    </select>
 </div>
 <% end %>
 <div id="<%= deck_config[:id] %>" class="gridster deckster-deck">

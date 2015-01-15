@@ -17,6 +17,8 @@ init = (custom_opts={}) ->
 
   window.grid = gridster
 
+  setupCardSearch()
+
   gridster.$widgets.each () ->
     $widget = $(this)
     $card_content_summary = $widget.find('.deckster-content > .deckster-summary')
@@ -107,6 +109,29 @@ refreshCard = ($widget) ->
 refreshDeck = () ->
   $('.deckster-card').each( (index, value)-> refreshCard($(value)) )
 
+setupCardSearch = () ->
+  $('.deckster-card').each (index, value) ->
+    val = $(value).data("title")
+    $('#deck_controls_title_search')
+    .append($("<option></option>", {
+        value: val,
+        text: val
+      }))
+
+  $('#deck_controls_title_search').chosen().change(() ->
+    value = $(this).val()
+    card = $(".deckster-card[data-title='#{value}']")
+
+    #scroll to the card
+    $('html,body').animate({scrollTop: card.offset().top-10 })
+
+    #highlight card briefly
+    card.addClass("selected")
+    callback = () -> card.removeClass("selected")
+    setTimeout(callback, 2000)
+  )
+
 window.decksterjs =
   init: init
   refreshDeck: refreshDeck
+  setupCardSearch: setupCardSearch
