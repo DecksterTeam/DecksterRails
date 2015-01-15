@@ -1,8 +1,15 @@
 module Deckster
   module DeckHelper
-    def render_deckster_deck deck_sym, card_configs, gridster_opts={}
+    def render_deckster_deck deck_config, card_configs, gridster_opts={}
+      # deck_config:
+      # must have :id
+      # :layout => path to layout to render?
+      # :controls => array of deck controls to show.
+      #              Current options: "refresh"
+
       card_contents = card_configs.collect { |card_config| render_deckster_card card_config }
-      render partial: "deckster/deck/deck", locals: {deck_sym: deck_sym, card_contents: card_contents, gridster_opts: gridster_opts}
+      show_deck_controls = deck_config[:controls] && deck_config[:controls].length > 0
+      render partial: "deckster/deck/deck", locals: {deck_config: deck_config, card_contents: card_contents, gridster_opts: gridster_opts, show_deck_controls: show_deck_controls}
     end
 
     def render_deckster_card card_config
