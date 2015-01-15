@@ -1,5 +1,14 @@
-<div id="<%= deck_sym %>" class="gridster deckster-deck">
-  <%= card_contents.join.html_safe %>
+<% if show_deck_controls %>
+<div data-deck_id="<%= deck_config[:id] %>">
+    <!-- I'm sure there's a better way to display this, but... google doesn't want to tell me. QQ -->
+    Deck Controls:
+    <% if deck_config[:controls].include? 'refresh' %>
+        <a title="Refresh" onclick="decksterjs.refreshDeck()"><i class="fa fa-rotate-right"></i></a>
+    <% end %>
+</div>
+<% end %>
+<div id="<%= deck_config[:id] %>" class="gridster deckster-deck">
+    <%= card_contents.join.html_safe %>
 </div>
 <script type="text/javascript">
     $(document).ready(function () {
