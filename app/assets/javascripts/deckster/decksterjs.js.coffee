@@ -110,13 +110,16 @@ refreshDeck = () ->
   $('.deckster-card').each( (index, value)-> refreshCard($(value)) )
 
 setupCardSearch = () ->
+  seen_values = []
   $('.deckster-card').each (index, value) ->
     val = $(value).data("title")
-    $('#deck_controls_title_search')
-    .append($("<option></option>", {
-        value: val,
-        text: val
-      }))
+    if seen_values.indexOf(val) == -1
+      $('#deck_controls_title_search')
+      .append($("<option></option>", {
+          value: val,
+          text: val
+        }))
+      seen_values.push val
 
   $('#deck_controls_title_search').chosen().change(() ->
     value = $(this).val()

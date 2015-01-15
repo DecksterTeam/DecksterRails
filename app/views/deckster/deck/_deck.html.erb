@@ -6,9 +6,11 @@
         <a title="Refresh" onclick="decksterjs.refreshDeck()"><i class="fa fa-rotate-right"></i></a>
     <% end %>
 
+    <% if deck_config[:controls].include? 'search' %>
     <select id="deck_controls_title_search" class="chosen chosen-select" data-placeholder="Find card..." tabindex="-1">
         <option value></option>
     </select>
+    <% end %>
 </div>
 <% end %>
 <div id="<%= deck_config[:id] %>" class="gridster deckster-deck">
