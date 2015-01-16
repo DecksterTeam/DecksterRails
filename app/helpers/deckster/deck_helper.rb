@@ -5,7 +5,7 @@ module Deckster
       # must have :id
       # :layout => path to layout to render?
       # :controls => array of deck controls to show.
-      #              Current options: "refresh"
+      #              Current options: "refresh", "search"
 
       card_contents = card_configs.collect { |card_config| render_deckster_card card_config }
       show_deck_controls = deck_config[:controls] && deck_config[:controls].length > 0

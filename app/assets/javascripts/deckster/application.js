@@ -16,3 +16,4 @@
 //= require deckster/gridster
 //= require deckster/decksterjs
 //= require deckster/d3
+//= require deckster/chosen.jquery.min
