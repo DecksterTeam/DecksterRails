@@ -1,5 +1,31 @@
+###*
+  This is a helper function to trigger the specified event on a given element
+  @param {el} The element to trigger the event on
+  @param {event} The event to trigger
+###
 trigger_event = (el, event) ->
   $(el).trigger(event)
+
+###*
+  This function will load content of specified type into the card
+  @param {card_el} The card element that is the parent of the summary and detail sections
+  @param {type} The section of the card that you would like to load (summary or detail)
+###
+load_card_content = (card_el, type, reload_card = false) ->
+  $card_el = $(card_el)
+  $card_content_el = $card_el.find(".deckster-content > .deckster-#{type}")
+  card_content_loaded = $card_content_el.attr 'data-content-loaded'
+
+  if card_content_loaded == false || card_content_loaded == 'false' || reload_card
+    $card_content_el.html('Loading ...') if reload_card
+
+    card_content_loaded_url = $card_content_el.attr "data-#{type}-url"
+    if card_content_loaded_url?
+      on_response = (response) ->
+        $card_content_el.html response
+        $card_content_el.attr 'data-content-loaded', true
+        trigger_event($card_el, "deckster.card-#{type}.loaded")
+      $.get card_content_loaded_url, on_response, 'html'
 
 init = (custom_opts={}) ->
   gridster_options =
@@ -24,16 +50,7 @@ init = (custom_opts={}) ->
 
   gridster.$widgets.each () ->
     $widget = $(this)
-    $card_content_summary = $widget.find('.deckster-content > .deckster-summary')
-    card_content_summary_loaded = $card_content_summary.attr 'data-content-loaded'
-    if card_content_summary_loaded == false || card_content_summary_loaded == 'false'
-      card_content_summary_loaded_url = $card_content_summary.attr 'data-summary-url'
-      if card_content_summary_loaded_url?
-        on_response = (response) ->
-          $card_content_summary.html response
-          $card_content_summary.attr 'data-content-loaded', true
-          trigger_event($card_content_summary, 'deckster.card-summary.loaded')
-        $.get card_content_summary_loaded_url, on_response, 'html'
+    load_card_content $widget, 'summary'
 
   gridster.$el.on 'click', '> .deckster-card .deckster-controls .deckster-expand-collapse-handle', () ->
     $button = $(this)
@@ -53,10 +70,10 @@ init = (custom_opts={}) ->
       $card_content_detail = $card_content.children '.deckster-detail'
 
       $card_content_detail.fadeOut()
-      $card_content_summary.fadeIn({complete: trigger_event($card_content, 'deckster.card-summary.shown')})
+      $card_content_summary.fadeIn({complete: trigger_event($widget, 'deckster.card-summary.shown')})
     else
       $widget.attr 'data-expanded', true
-      gridster.expand_widget $widget, 4
+      gridster.expand_widget $widget, 4 #TODO should this be set to the max number of columns in the grid
       $widget.find('.deckster-expand-handle').hide()
       $widget.find('.deckster-popout-handle').show()
       $widget.find('.deckster-refresh-handle').show()
@@ -66,21 +83,12 @@ init = (custom_opts={}) ->
       $card_content_summary = $card_content.children '.deckster-summary'
       $card_content_detail = $card_content.children '.deckster-detail'
       
-      console.log [$card_content_summary, $card_content_detail]
+      #console.log [$card_content_summary, $card_content_detail]
 
       $card_content_summary.fadeOut()
-      $card_content_detail.fadeIn({complete: trigger_event($card_content, 'deckster.card-detail.shown')});
+      $card_content_detail.fadeIn({complete: trigger_event($widget, 'deckster.card-detail.shown')});
 
-      card_content_detail_loaded = $card_content_detail.attr 'data-content-loaded'
-      card_content_detail_loaded ?= false
-      if card_content_detail_loaded == false || card_content_detail_loaded == 'false'
-        card_content_detail_loaded_url = $card_content_detail.attr 'data-detail-url'
-        if card_content_detail_loaded_url?
-          on_response = (response) ->
-            $card_content_detail.html response
-            $card_content_detail.attr 'data-content-loaded', true
-            trigger_event($card_content_detail, 'deckster.card-detail.loaded')
-          $.get card_content_detail_loaded_url, on_response, 'html'
+      load_card_content $widget, 'detail'
 
   gridster.$el.on 'click', '> .deckster-card .deckster-controls .deckster-popout-handle', () ->
     $button = $(this)
@@ -101,15 +109,7 @@ refreshCard = ($widget) ->
 
   card_types = ['detail', 'summary']
   for card_type in card_types
-    card_content_obj = $widget.find(".deckster-content > .deckster-#{card_type}")
-    card_content_url = card_content_obj.attr "data-#{card_type}-url"
-
-    if card_content_url?
-      on_response = (response) ->
-        card = this
-        card.html response
-        card.attr 'data-content-loaded', true
-      $.get card_content_url, $.proxy(on_response, card_content_obj), 'html'
+    load_card_content $widget, card_type, true
 
 refreshDeck = () ->
   $('.deckster-card').each( (index, value)-> refreshCard($(value)) )
