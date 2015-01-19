@@ -1,15 +1,15 @@
 ###*
-  This is a helper function to trigger the specified event on a given element
-  @param {el} The element to trigger the event on
-  @param {event} The event to trigger
+#  This is a helper function to trigger the specified event on a given element
+#  @param {el} The element to trigger the event on
+#  @param {event} The event to trigger
 ###
 trigger_event = (el, event) ->
   $(el).trigger(event)
 
 ###*
-  This function will load content of specified type into the card
-  @param {card_el} The card element that is the parent of the summary and detail sections
-  @param {type} The section of the card that you would like to load (summary or detail)
+#  This function will load content of specified type into the card
+#  @param {card_el} The card element that is the parent of the summary and detail sections
+#  @param {type} The section of the card that you would like to load (summary or detail)
 ###
 load_card_content = (card_el, type, reload_card = false) ->
   $card_el = $(card_el)
