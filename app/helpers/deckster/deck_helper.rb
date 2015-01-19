@@ -1,6 +1,6 @@
 module Deckster
   module DeckHelper
-    def render_deckster_deck deck_config, card_configs, gridster_opts={}
+    def render_deckster_deck deck_config, card_configs
       # deck_config:
       # must have :id
       # :layout => path to layout to render?
@@ -9,7 +9,7 @@ module Deckster
 
       card_contents = card_configs.collect { |card_config| render_deckster_card card_config }
       show_deck_controls = deck_config[:controls] && deck_config[:controls].length > 0
-      render partial: "deckster/deck/deck", locals: {deck_config: deck_config, card_contents: card_contents, gridster_opts: gridster_opts, show_deck_controls: show_deck_controls}
+      render partial: "deckster/deck/deck", locals: {deck_config: deck_config, card_contents: card_contents, gridster_opts: deck_config[:gridster_opts], show_deck_controls: show_deck_controls}
     end
 
     def render_deckster_card card_config
