@@ -85,9 +85,8 @@ module Deckster
           content = send "render_#{card_config[:card]}_detail_card".to_sym
           loaded = true
       end
-      show = card_config[:sharedView] === 'detail'
 
-      "<div class='deckster-detail' #{show ? "" : "style='display:none;'"} data-detail-url='#{card_config[:detail_url]}' data-content-loaded=#{loaded}>#{content}</div>".html_safe
+      "<div class='deckster-detail' style='display:none;' data-detail-url='#{card_config[:detail_url]}' data-content-loaded=#{loaded}>#{content}</div>".html_safe
     end
   end
 end
