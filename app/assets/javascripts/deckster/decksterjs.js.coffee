@@ -20,13 +20,12 @@ load_card_content = (card_el, type, reload_card = false) ->
     $card_content_el.html('Loading ...') if reload_card
 
     card_content_loaded_url = $card_content_el.attr "data-#{type}-url"
-    console.log(card_content_loaded_url)
     if card_content_loaded_url?
       on_response = (response) ->
         $card_content_el.html response
         $card_content_el.attr 'data-content-loaded', true
         trigger_event($card_el, "deckster.card-#{type}.loaded")
-        setupPopover()
+        setupPopover() if $card_el.context.id == 'streamers'
       $.get card_content_loaded_url, on_response, 'html'
 
 init = (custom_opts={}) ->
