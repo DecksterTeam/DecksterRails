@@ -1,4 +1,5 @@
-<div id="<%= sym %>" class="deckster-card well well-lg <%= card_classes %>" data-col="<%= col %>" data-row="<%= row %>" data-sizex="<%= sizex %>" data-sizey="<%= sizey %>" data-title="<%= title %>" style="position: absolute;">
+<div id="<%= sym %>" class="deckster-card well well-lg <%= card_classes %>" data-col="<%= col %>" data-row="<%= row %>" data-sizex="<%= sizex %>"
+     data-sizey="<%= sizey %>" data-title="<%= title %>" style="position: absolute;" data-is-shared=<%= is_shared_view %>>
   <nav class="navbar navbar-default" role="navigation">
     <div class="container-fluid deckster-card-title">
       <div class="navbar-header">
@@ -23,7 +24,13 @@
     </div>
   </nav>
   <div class="deckster-content">
+    <% if is_shared_view %>
+    <%= shared_html %>
+    <% end %>
+
+    <% if !is_shared_view %>
     <%= summary_html %>
     <%= detail_html %>
+    <% end %>
   </div>
 </div>
