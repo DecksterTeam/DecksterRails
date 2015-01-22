@@ -23,23 +23,44 @@ module Deckster
       # :summary_url => convention override for the summary card
       # :detail_url => convention override for the detail card
       # :card_classes => custom css class(es) to add to the card wrapper
+      # :sharedView = boolean value - renders one view for both expanded and summary view.
 
       card_config[:title] ||= card_config[:card].to_s.titleize
       card_config[:load] ||= :fully
 
-      card_config[:summary_url] ||= deckster.card_path "#{card_config[:card]}_summary", layout: false
-      card_config[:detail_url] ||= deckster.card_path "#{card_config[:card]}_detail", layout: false
-
-      summary_html = render_deckster_summary_card card_config
-      detail_html = render_deckster_detail_card card_config
+      shared = !card_config[:sharedView].nil? and card_config[:sharedView]
+      if shared
+        card_config[:shared_url] ||= deckster.card_path "#{card_config[:card]}_shared", layout: false
+        shared_html = render_deckster_shared_card card_config
+      else
+        card_config[:summary_url] ||= deckster.card_path "#{card_config[:card]}_summary", layout: false
+        card_config[:detail_url] ||= deckster.card_path "#{card_config[:card]}_detail", layout: false
+        summary_html = render_deckster_summary_card card_config
+        detail_html = render_deckster_detail_card card_config
+      end
 
       render partial: "deckster/deck/card", locals: {
           sym: card_config[:card], title: card_config[:title], tooltip: card_config[:tooltip],
           summary_html: summary_html,
           detail_html: detail_html,
+          shared_html: shared_html,
+          is_shared_view: shared,
           row: card_config[:row], col: card_config[:col], sizex: card_config[:sizex],
           sizey: card_config[:sizey], card_classes: card_config[:card_classes]
       }
+    end
+
+    def render_deckster_shared_card card_config
+      case
+        when [:async, :summary_async].include?(card_config[:load])
+          content = 'Loading ...'
+          loaded = false
+        else
+          content = send "render_#{card_config[:card]}_shared_card".to_sym
+          loaded = true
+      end
+
+      "<div class='deckster-shared' data-shared-url='#{card_config[:shared_url]}' data-content-loaded=#{loaded}>#{content}</div>".html_safe
     end
 
     def render_deckster_summary_card card_config

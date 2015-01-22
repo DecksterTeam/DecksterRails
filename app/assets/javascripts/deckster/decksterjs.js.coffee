@@ -50,7 +50,8 @@ init = (custom_opts={}) ->
 
   gridster.$widgets.each () ->
     $widget = $(this)
-    load_card_content $widget, 'summary'
+    type = if $widget.data('is-shared') then "shared" else "summary"
+    load_card_content $widget, type
 
   gridster.$el.on 'click', '> .deckster-card .deckster-controls .deckster-expand-collapse-handle', () ->
     $button = $(this)
@@ -69,8 +70,9 @@ init = (custom_opts={}) ->
       $card_content_summary = $card_content.children '.deckster-summary'
       $card_content_detail = $card_content.children '.deckster-detail'
 
-      $card_content_detail.fadeOut()
-      $card_content_summary.fadeIn({complete: trigger_event($widget, 'deckster.card-summary.shown')})
+      unless $widget.data('is-shared')
+        $card_content_detail.fadeOut()
+        $card_content_summary.fadeIn({complete: trigger_event($widget, 'deckster.card-summary.shown')})
     else
       $widget.attr 'data-expanded', true
       gridster.expand_widget $widget, 4 #TODO should this be set to the max number of columns in the grid
@@ -82,13 +84,11 @@ init = (custom_opts={}) ->
       $card_content = $widget.children '.deckster-content'
       $card_content_summary = $card_content.children '.deckster-summary'
       $card_content_detail = $card_content.children '.deckster-detail'
-      
-      #console.log [$card_content_summary, $card_content_detail]
 
-      $card_content_summary.fadeOut()
-      $card_content_detail.fadeIn({complete: trigger_event($widget, 'deckster.card-detail.shown')});
-
-      load_card_content $widget, 'detail'
+      unless $widget.data('is-shared')
+        $card_content_summary.fadeOut()
+        $card_content_detail.fadeIn({complete: trigger_event($widget, 'deckster.card-detail.shown')});
+        load_card_content $widget, 'detail'
 
   gridster.$el.on 'click', '> .deckster-card .deckster-controls .deckster-popout-handle', () ->
     $button = $(this)
