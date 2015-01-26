@@ -1,5 +1,6 @@
 <div id="<%= sym %>" class="deckster-card well well-lg <%= card_classes %>" data-col="<%= col %>" data-row="<%= row %>" data-sizex="<%= sizex %>"
-     data-sizey="<%= sizey %>" data-title="<%= title %>" style="position: absolute;" data-is-shared=<%= is_shared_view %>>
+     data-sizey="<%= sizey %>" data-title="<%= title %>" style="position: absolute; display: <%= display %>" data-is-shared=<%= is_shared_view %>
+>
   <nav class="navbar navbar-default" role="navigation">
     <div class="container-fluid deckster-card-title">
       <div class="navbar-header">
@@ -20,10 +21,20 @@
         <li>
           <a title='Expand' class='deckster-control deckster-expand-handle deckster-expand-collapse-handle'><i class="fa fa-expand"></i></a>
         </li>
+        <li>
+          <a title="Hide" class='deckster-control deckster-hide-handle'><i class="fa fa-close"></i></a>
+        </li>
       </ul>
     </div>
   </nav>
   <div class="deckster-content">
+    <% if !visualizations.nil? %>
+      <div class="radial-card">
+        <% visualizations.each do |viz| %>
+            <%= viz %>
+        <% end %>
+      </div>
+    <% end %>
     <% if is_shared_view %>
     <%= shared_html %>
     <% end %>

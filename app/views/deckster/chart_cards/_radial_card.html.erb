@@ -1,0 +1,20 @@
+<!--<div>type, title, description, content-->
+
+<div id="<%= viz[:id] %>" class="chart"></div>
+
+<script>
+    radialProgress(document.getElementById('<%= viz[:id] %>'))
+            .label("<%= viz[:title] %>")
+            .diameter(<%= diameter %>)
+            .value(<%= viz[:content][0][:percent] * 100 %>)
+            .arcDesc("<%= viz[:content][0][:description] %>")
+            <% if viz[:content].length > 1 %>
+            .value2(<%= viz[:content][1][:percent] * 100 %>)
+            .arcDesc2("<%= viz[:content][1][:description] %>")
+            <% else %>
+            .value2(0)
+            .arcDesc2("")
+            <% end %>
+            .render();
+
+</script>
