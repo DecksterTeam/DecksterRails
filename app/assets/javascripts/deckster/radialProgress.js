@@ -59,10 +59,6 @@ function radialProgress(parent) {
     //startAngle, endAngle should both be in radians
     //radians = (Math.PI/180)*degrees
     function createArc(startAngle, endAngle) {
-        if (_id == "icecream_radial_chart") {
-            console.log("startAngle:", startAngle);
-            console.log("endAngle:", endAngle);
-        }
         var arc = d3.svg.arc()
             .startAngle(startAngle) //just radians
             .endAngle(endAngle); //just radians
@@ -207,10 +203,6 @@ function radialProgress(parent) {
                 }
                 else if (_style == STYLES.cumulative) {
                     endAngle = radial_chart_outerRadiuses[id][index+1];
-                    console.log("endAngle",endAngle)
-                    console.log("radial_chart_outerRadiuses",radial_chart_outerRadiuses)
-                    console.log("radial_chart_outerRadiuses[id]",radial_chart_outerRadiuses[id])
-                    console.log("index",index)
                 }
 
 
@@ -281,8 +273,6 @@ function radialProgress(parent) {
                 radial_chart_outerRadiuses[_id].push(endAngle);
                 i++;
             }
-            console.log('id for outerradiuses', _id)
-            console.log("outerRadiuses", radial_chart_outerRadiuses)
         }
 
         if (radial_chart_outerRadiuses[_id] == undefined)
