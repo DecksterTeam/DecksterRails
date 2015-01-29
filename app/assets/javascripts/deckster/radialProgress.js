@@ -27,6 +27,9 @@ radial_chart_paths = {};
 radial_chart_outerRadiuses = {};
 
 function radialProgress(parent) {
+    var STYLES = {concentric: 'concentric', cumulative: 'cumulative'}
+    var THEMES = {blue: 'blue', green: 'green'}
+
     var _data=null,
         _duration= 1000,
         _selection,
@@ -35,13 +38,13 @@ function radialProgress(parent) {
         __height = 200,
         _diameter,
         _label='',
-        _theme = 'blue',
+        _theme = THEMES.blue,
         _fontSize=10,
         _id = '',
         _showLegend = null,
         _centralLabel = null,
-        _style = 'concentric'
-        radial_chart_arcDesc = {};
+        _style = STYLES.concentric,
+        radial_chart_arcDesc = {},
         _description = '';
 
     var _mouseClick;
@@ -53,12 +56,19 @@ function radialProgress(parent) {
     var _currentArcs = [], _currentValue = 0
     _selection=d3.select(parent);
 
-    function createArc(endAngle) {
+    //startAngle, endAngle should both be in radians
+    //radians = (Math.PI/180)*degrees
+    function createArc(startAngle, endAngle) {
+        if (_id == "icecream_radial_chart") {
+            console.log("startAngle:", startAngle);
+            console.log("endAngle:", endAngle);
+        }
         var arc = d3.svg.arc()
-            .startAngle(0 * (Math.PI/180)) //just radians
-            .endAngle(0); //just radians
+            .startAngle(startAngle) //just radians
+            .endAngle(endAngle); //just radians
         radial_chart_arcs[_id].push(arc);
         _currentArcs.push(0);
+        return endAngle
     }
 
     function createPath(svg, data, index, arc, id) {
@@ -68,30 +78,17 @@ function radialProgress(parent) {
             .attr("transform", "translate(" + _width/2 + "," + _width/2 + ")")
             .attr("d", arc);
 
-        if (_showLegend || (_value.length > 2 && _showLegend == null)) {
+        if (_showLegend || (_value.length > 2 && _showLegend == null) || _style == STYLES.cumulative) {
             with({id: _id}) {
                 appendedPath
-                    .on("mousemove", function() {
-                        var m = d3.mouse(this);
-                        radius = Math.sqrt(m[0]*m[0] + m[1]*m[1])
-                        mouseMoved(id, radius);
+                    .on("mouseenter", function() {
+                        setLabel(index, id)
                     })
                     .on("mouseout", function() { mouseOut(id); })
             }
         }
 
         radial_chart_paths[id].push(appendedPath)
-    }
-
-    function mouseMoved(id, radius) {
-        arcIndex = radial_chart_outerRadiuses[id].length-1
-        for (i = 0; i < radial_chart_outerRadiuses[id].length; i++) {
-            if (radius > radial_chart_outerRadiuses[id][i]) {
-                arcIndex = i-1
-                break
-            }
-        }
-        setLabel(arcIndex, id);
     }
 
     function mouseOut(id) {
@@ -203,9 +200,19 @@ function radialProgress(parent) {
             layout(svg);
 
             function renderPath(index, id) {
-                var ratio=(_value[index]-_minValue)/(_maxValue-_minValue);
-                var endAngle=Math.min(360*ratio,360);
-                endAngle=endAngle * Math.PI/180;
+                if (_style == STYLES.concentric) {
+                    var ratio=(_value[index]-_minValue)/(_maxValue-_minValue);
+                    var endAngle=Math.min(360*ratio,360);
+                    endAngle=endAngle * Math.PI/180;
+                }
+                else if (_style == STYLES.cumulative) {
+                    endAngle = radial_chart_outerRadiuses[id][index+1];
+                    console.log("endAngle",endAngle)
+                    console.log("radial_chart_outerRadiuses",radial_chart_outerRadiuses)
+                    console.log("radial_chart_outerRadiuses[id]",radial_chart_outerRadiuses[id])
+                    console.log("index",index)
+                }
+
 
                 callback = function(a) { return arcTween(a, index, id); }
 
@@ -252,23 +259,44 @@ function radialProgress(parent) {
         _height=_width;
         _fontSize=_width*.2;
         radial_chart_arcs[_id] = [];
-        while (radial_chart_arcs[_id].length < _value.length) {
-            createArc()
-        }
 
-        radial_chart_arcs[_id][0].outerRadius(_width/2);
-        radial_chart_arcs[_id][0].innerRadius(_width/2 * .85)-2;
-        radial_chart_outerRadiuses[_id] = []
-        radial_chart_outerRadiuses[_id].push(_width/2);
-
-        previousInnerRadius = _width/2 * .85;
         widthOfCircle = _width/2 * .15;
 
-        for (i = 1; i < radial_chart_arcs[_id].length; i++) {
+        if (_style == STYLES.concentric) {
+            while (radial_chart_arcs[_id].length < _value.length)
+                createArc(0,0);
+            delta = widthOfCircle;
+        }
+        else if (_style == STYLES.cumulative) {
+            delta = 0;
+            offset = 0;
+            i = 0;
+            radial_chart_outerRadiuses[_id] = [0]
+            while (radial_chart_arcs[_id].length < _value.length) {
+                ratio=(_value[i]-_minValue)/(_maxValue-_minValue);
+                endAngle=convertDegreesToRadians(360*ratio) + offset;
+                offset = createArc(offset,endAngle);
+                startAngle = endAngle;
+                endAngle = offset;
+                radial_chart_outerRadiuses[_id].push(endAngle);
+                i++;
+            }
+            console.log('id for outerradiuses', _id)
+            console.log("outerRadiuses", radial_chart_outerRadiuses)
+        }
+
+        if (radial_chart_outerRadiuses[_id] == undefined)
+            radial_chart_outerRadiuses[_id] = [];
+
+        previousInnerRadius = _width/2;
+
+        for (i = 0; i < radial_chart_arcs[_id].length; i++) {
             radial_chart_arcs[_id][i].outerRadius(previousInnerRadius);
             radial_chart_arcs[_id][i].innerRadius(previousInnerRadius - widthOfCircle - 1);
-            radial_chart_outerRadiuses[_id].push(previousInnerRadius);
-            previousInnerRadius = previousInnerRadius - widthOfCircle;
+            if (_style == STYLES.concentric) {
+                radial_chart_outerRadiuses[_id].push(previousInnerRadius);
+            }
+            previousInnerRadius = previousInnerRadius - delta;
             //if(previousInnerRadius < 10)
             //    break;
         }
@@ -280,9 +308,11 @@ function radialProgress(parent) {
         //_arcDesc = _arcDesc.slice(0,i);
     }
 
+    function convertDegreesToRadians(degrees) {
+        return degrees * Math.PI / 180;
+    }
 
     component.render = function() {
-        measure();
         component();
         return component;
     }
