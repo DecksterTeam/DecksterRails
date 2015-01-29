@@ -156,4 +156,3 @@ init = (custom_opts={}) ->
 window.decksterjs =
   init: init
   refresh_deck: refresh_deck
-  create_card: create_card
