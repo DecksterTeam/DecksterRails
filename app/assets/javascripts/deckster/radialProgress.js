@@ -22,6 +22,9 @@
  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  OTHER DEALINGS IN THE SOFTWARE.
  */
+radial_chart_arcs = {};
+radial_chart_paths = {};
+radial_chart_outerRadiuses = {};
 
 function radialProgress(parent) {
     var _data=null,
@@ -29,53 +32,141 @@ function radialProgress(parent) {
         _selection,
         _margin = {top:0, right:0, bottom:0, left:0},
         __width = 150,
-        __height = 145,
+        __height = 200,
         _diameter,
-        _label="",
-        _label2=""
-        _fontSize=10;
-
+        _label='',
+        _theme = 'blue',
+        _fontSize=10,
+        _id = '',
+        _showLegend = null,
+        _centralLabel = null,
+        _style = 'concentric'
+        radial_chart_arcDesc = {};
+        _description = '';
 
     var _mouseClick;
 
-    var _value= 0,
+    var _value= [],
         _minValue = 0,
         _maxValue = 100;
 
-    var  _currentArc= 0, _currentArc2= 0, _currentValue=0;
-
-    var _arc = d3.svg.arc()
-        .startAngle(0 * (Math.PI/180)); //just radians
-
-    var _arc2 = d3.svg.arc()
-        .startAngle(0 * (Math.PI/180))
-        .endAngle(0); //just radians
-
-
+    var _currentArcs = [], _currentValue = 0
     _selection=d3.select(parent);
 
+    function createArc(endAngle) {
+        var arc = d3.svg.arc()
+            .startAngle(0 * (Math.PI/180)) //just radians
+            .endAngle(0); //just radians
+        radial_chart_arcs[_id].push(arc);
+        _currentArcs.push(0);
+    }
+
+    function createPath(svg, data, index, arc, id) {
+        var path = svg.select(".arcs").selectAll(".arc" + index + "-" + _theme).data(data);
+        var appendedPath = path.enter().append("path")
+            .attr("class", "arc" + index % 5 + "-" + _theme)
+            .attr("transform", "translate(" + _width/2 + "," + _width/2 + ")")
+            .attr("d", arc);
+
+        if (_showLegend || (_value.length > 2 && _showLegend == null)) {
+            with({id: _id}) {
+                appendedPath
+                    .on("mousemove", function() {
+                        var m = d3.mouse(this);
+                        radius = Math.sqrt(m[0]*m[0] + m[1]*m[1])
+                        mouseMoved(id, radius);
+                    })
+                    .on("mouseout", function() { mouseOut(id); })
+            }
+        }
+
+        radial_chart_paths[id].push(appendedPath)
+    }
+
+    function mouseMoved(id, radius) {
+        arcIndex = radial_chart_outerRadiuses[id].length-1
+        for (i = 0; i < radial_chart_outerRadiuses[id].length; i++) {
+            if (radius > radial_chart_outerRadiuses[id][i]) {
+                arcIndex = i-1
+                break
+            }
+        }
+        setLabel(arcIndex, id);
+    }
+
+    function mouseOut(id) {
+        obj = $('#' + id + ' .labels .label')
+        obj.hide()
+    }
+
+    function setLabel(arcIndex, id) {
+        obj = $('#' + id + ' .labels .label')
+        obj.attr("class", "label arc" + arcIndex + "-" + _theme)
+        obj.html(_value[arcIndex] + "%")
+        obj.fadeIn()
+    }
+
+    function createLabels(label, svg) {
+        if (_showLegend || (_value.length > 2 && _showLegend == null)) {
+            svg = $(svg[0]);
+            svg.css("display","inline-block");
+            wrappedDiv = $(svg[0].parentNode).wrap("<div class='chart'></div>");
+            wrappedDiv.append("<div class='radial_chart_legend'></div>");
+            legend = wrappedDiv.find('.radial_chart_legend');
+
+            for (i=0; i < _value.length; i++) {
+                legend.append("<div class='radial_legend_bullet'><svg width='10' height='10'><rect width='10' height='10' class='arc" + i + "-" + _theme + "'/></svg> " + radial_chart_arcDesc[i] + "</div>")
+            }
+            appendLabel(label, 0, _width/2, _fontSize, "", "none")
+        }
+        else if (_value.length == 1) {
+            appendLabel(label, 0, _width/2, _fontSize, radial_chart_arcDesc[0]);
+        }
+        else if (_value.length == 2) {
+            appendLabel(label, 0, _width/3, _fontSize * .75, radial_chart_arcDesc[0])
+            appendLabel(label, 1, _width/3*2, _fontSize *.75, radial_chart_arcDesc[1]);
+        }
+    }
+
+    function appendLabel(label, index, x = _width/2, fontSize = _fontSize, desc, display="") {
+        _centralLabel = label.enter().append("text")
+            .attr("class","label arc"+index + "-" + _theme)
+            .attr("y",_width/2+fontSize/3)
+            .attr("x",x)
+            .attr("width",_width)
+            .text(function (d) { return Math.round((_value[index]-_minValue)/(_maxValue-_minValue)*100) + "%" })
+            .style("font-size",fontSize+"px")
+            .style("display", display)
+        if (desc) {
+            label.enter().append("text")
+                .attr("class","label arc"+index + "-" + _theme)
+                .attr("y",_width/2+fontSize)
+                .attr("x",x)
+                .attr("width",_width)
+                .text(function (d) { return desc; })
+                .style("font-size",fontSize *.6+"px")
+        }
+    }
 
     function component() {
 
         _selection.each(function (data) {
-
             // Select the svg element, if it exists.
-            var svg = d3.select(this).selectAll("svg").data([data]);
+            var svg = d3.select(this).selectAll("svg.radial-svg").data([data]);
 
             var enter = svg.enter().append("svg").attr("class","radial-svg").append("g");
 
             measure();
 
             svg.attr("width", _width + 20)
-                .attr("height", _height + 25);
+                .attr("height", _height + _diameter *.2);
 
 
             var background = enter.append("g").attr("class","component")
-                .attr("cursor","pointer")
                 .on("click",onMouseClick);
 
 
-            _arc.endAngle(360 * (Math.PI/180))
+            radial_chart_arcs[_id][0].endAngle(360 * (Math.PI/180))
 
             background.append("rect")
                 .attr("class","background")
@@ -84,78 +175,57 @@ function radialProgress(parent) {
 
             background.append("path")
                 .attr("transform", "translate(" + _width/2 + "," + _width/2 + ")")
-                .attr("d", _arc);
+                .attr("d", radial_chart_arcs[_id][0]);
 
             background.append("text")
                 .attr("class", "label")
                 .attr("transform", "translate(" + _width/2 + "," + (_width + _fontSize) + ")")
                 .text(_label);
 
-            background.append("text")
-                .attr("class", "label")
-                .attr("transform", "translate(" + _width/2 + "," + (_width + _fontSize) + ")")
-                .text(_label2);
-
            var g = svg.select("g")
                 .attr("transform", "translate(" + _margin.left + "," + _margin.top + ")");
 
 
-            _arc.endAngle(_currentArc);
+            radial_chart_arcs[_id][0].endAngle(_currentArcs[0]);
             enter.append("g").attr("class", "arcs");
-            var path = svg.select(".arcs").selectAll(".arc").data(data);
-            path.enter().append("path")
-                .attr("class","arc")
-                .attr("transform", "translate(" + _width/2 + "," + _width/2 + ")")
-                .attr("d", _arc);
 
-            //Another path in case we want to compare data
-            var path2 = svg.select(".arcs").selectAll(".arc2").data(data);
-            path2.enter().append("path")
-                .attr("class","arc2")
-                .attr("transform", "translate(" + _width/2 + "," + _width/2 + ")")
-                .attr("d", _arc2);
+            radial_chart_paths[_id] = []
+            for (var i=0; i < _value.length; i++) {
+                createPath(svg, data, i, radial_chart_arcs[_id][i], _id);
+            }
 
 
             enter.append("g").attr("class", "labels");
+
             var label = svg.select(".labels").selectAll(".label").data(data);
-            label.enter().append("text")
-                .attr("class","label")
-                .attr("y",_width/2+_fontSize/3)
-                .attr("x",_width/2)
-                .attr("cursor","pointer")
-                .attr("width",_width)
-                // .attr("x",(3*_fontSize/2))
-                .text(function (d) { return Math.round((_value-_minValue)/(_maxValue-_minValue)*100) + "%" })
-                .style("font-size",_fontSize+"px")
-
-            path.exit().transition().duration(500).attr("x",1000).remove();
-
+            createLabels(label, svg);
 
             layout(svg);
 
-            function layout(svg) {
-
-                var ratio=(_value-_minValue)/(_maxValue-_minValue);
+            function renderPath(index, id) {
+                var ratio=(_value[index]-_minValue)/(_maxValue-_minValue);
                 var endAngle=Math.min(360*ratio,360);
                 endAngle=endAngle * Math.PI/180;
 
-                path.datum(endAngle);
-                path.transition().duration(_duration)
-                    .attrTween("d", arcTween);
+                callback = function(a) { return arcTween(a, index, id); }
 
-                if (_value2) {
-                    var ratio2=(_value2-_minValue)/(_maxValue-_minValue);
-                    var endAngle2=Math.min(360*ratio2,360);
-                    endAngle2=endAngle2 * Math.PI/180;
+                radial_chart_paths[id][index].datum(endAngle);
+                radial_chart_paths[id][index].transition().duration(_duration)
+                    .attrTween("d", callback);
+                $(radial_chart_paths[id][index]).tooltip({
+                    html: "test"
+                });
 
-                    path2.datum(endAngle2);
-                    path2.transition().delay(_duration).duration(_duration)
-                        .attrTween("d", arcTween2);
+                return ratio;
+            }
+
+            function layout(svg) {
+                ratios = []
+                for (index=0; index < _value.length; index++) {
+                    ratio = renderPath(index, _id)
+                    ratios.push(ratio);
+                    label.datum(ratio * 100);
                 }
-
-                label.datum(Math.round(ratio*100));
-                label.transition().duration(_duration)
-                    .tween("text",labelTween);
 
             }
 
@@ -168,42 +238,46 @@ function radialProgress(parent) {
         }
     }
 
-    function labelTween(a) {
-        var i = d3.interpolate(_currentValue, a);
-        _currentValue = i(0);
+    function arcTween(a, index, id) {
+        var i = d3.interpolate(_currentArcs[index], a);
 
         return function(t) {
-            _currentValue = i(t);
-            this.textContent = Math.round(i(t)) + "%";
-        }
-    }
-
-    function arcTween(a) {
-        var i = d3.interpolate(_currentArc, a);
-
-        return function(t) {
-            _currentArc=i(t);
-            return _arc.endAngle(i(t))();
+            _currentArcs[index]=i(t);
+            return radial_chart_arcs[id][index].endAngle(i(t))();
         };
     }
-
-    function arcTween2(a) {
-        var i = d3.interpolate(_currentArc2, a);
-
-        return function(t) {
-            return _arc2.endAngle(i(t))();
-        };
-    }
-
 
     function measure() {
         _width=_diameter - _margin.right - _margin.left - _margin.top - _margin.bottom;
         _height=_width;
         _fontSize=_width*.2;
-        _arc.outerRadius(_width/2);
-        _arc.innerRadius(_width/2 * .85);
-        _arc2.outerRadius(_width/2 * .85);
-        _arc2.innerRadius(_width/2 * .85 - (_width/2 * .15));
+        radial_chart_arcs[_id] = [];
+        while (radial_chart_arcs[_id].length < _value.length) {
+            createArc()
+        }
+
+        radial_chart_arcs[_id][0].outerRadius(_width/2);
+        radial_chart_arcs[_id][0].innerRadius(_width/2 * .85)-2;
+        radial_chart_outerRadiuses[_id] = []
+        radial_chart_outerRadiuses[_id].push(_width/2);
+
+        previousInnerRadius = _width/2 * .85;
+        widthOfCircle = _width/2 * .15;
+
+        for (i = 1; i < radial_chart_arcs[_id].length; i++) {
+            radial_chart_arcs[_id][i].outerRadius(previousInnerRadius);
+            radial_chart_arcs[_id][i].innerRadius(previousInnerRadius - widthOfCircle - 1);
+            radial_chart_outerRadiuses[_id].push(previousInnerRadius);
+            previousInnerRadius = previousInnerRadius - widthOfCircle;
+            //if(previousInnerRadius < 10)
+            //    break;
+        }
+
+        ////GET RID OF DATA THAT WILL BE TOO SMALL TO DISPLAY
+        //radial_chart_arcs = radial_chart_arcs.slice(0,i);
+        //_currentArcs = _currentArcs.slice(0,i);
+        //_value = _value.slice(0,i);
+        //_arcDesc = _arcDesc.slice(0,i);
     }
 
 
@@ -213,17 +287,13 @@ function radialProgress(parent) {
         return component;
     }
 
-    component.value = function (_) {
+    component.value = function (_, index) {
         if (!arguments.length) return _value;
-        _value = [_];
-        _selection.datum([_value]);
-        return component;
-    }
-
-    component.value2 = function (_) {
-        if (!arguments.length) return _value2;
-        _value2 = [_];
-        _selection.datum([_value2]);
+        if (index == 0) {
+            _value = []
+        }
+        _value[index] = [_];
+        _selection.datum([_value[index]]);
         return component;
     }
 
@@ -257,21 +327,9 @@ function radialProgress(parent) {
         return component;
     };
 
-    component.label2 = function(_) {
-        if (!arguments.length) return _label2;
-        _label2 = _;
-        return component;
-    };
-
-    component.arcDesc = function(_) {
-        if (!arguments.length) return _arcDesc;
-        _arcDesc = _;
-        return component;
-    };
-
-    component.arcDesc2 = function(_) {
-        if (!arguments.length) return _arcDesc2;
-        _arcDesc = _;
+    component.arcDesc = function(_, index) {
+        if (!arguments.length) return radial_chart_arcDesc;
+        radial_chart_arcDesc[index] = _;
         return component;
     };
 
@@ -284,6 +342,36 @@ function radialProgress(parent) {
     component.onClick = function (_) {
         if (!arguments.length) return _mouseClick;
         _mouseClick=_;
+        return component;
+    }
+
+    component.showLegend = function(_) {
+        if (!arguments.length) return _showLegend;
+        _showLegend=_;
+        return component;
+    }
+
+    component.id = function(_) {
+        if (!arguments.length) return _id;
+        _id=_;
+        return component;
+    }
+
+    component.theme = function(_) {
+        if (!arguments.length) return _theme;
+        _theme=_;
+        return component;
+    }
+
+    component.style = function(_) {
+        if (!arguments.length) return _style;
+        _style=_;
+        return component;
+    }
+
+    component.description = function(_) {
+        if (!arguments.length) return _description;
+        _description=_;
         return component;
     }
 

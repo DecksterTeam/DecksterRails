@@ -4,17 +4,24 @@
 
 <script>
     radialProgress(document.getElementById('<%= viz[:id] %>'))
+            .id('<%= viz[:id] %>')
             .label("<%= viz[:title] %>")
             .diameter(<%= diameter %>)
-            .value(<%= viz[:content][0][:percent] * 100 %>)
-            .arcDesc("<%= viz[:content][0][:description] %>")
-            <% if viz[:content].length > 1 %>
-            .value2(<%= viz[:content][1][:percent] * 100 %>)
-            .arcDesc2("<%= viz[:content][1][:description] %>")
-            <% else %>
-            .value2(0)
-            .arcDesc2("")
+            <% viz[:content].each_with_index do |content, index| %>
+            .value(<%= content[:percent] %>, <%= index %>)
+            .arcDesc("<%= content[:description] %>", <%= index %>)
+            <% end %>
+            <% if !viz[:showLegend].nil? %>
+            .showLegend(<%= viz[:showLegend] %>)
+            <% end %>
+            <% if !viz[:theme].nil? %>
+            .theme('<%= viz[:theme] %>')
+            <% end %>
+            <% if !viz[:style].nil? %>
+            .style('<%= viz[:style] %>')
+            <% end %>
+            <% if !viz[:description].nil? %>
+            .description('<%= viz[:description] %>')
             <% end %>
             .render();
-
 </script>

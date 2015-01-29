@@ -116,6 +116,7 @@ module Deckster
         case viz[:type]
           when 'radial'
             viz[:content] = [ (send viz[:data_source]) ].flatten
+            viz[:content].sort_by! do |item| -item[:percent] end if viz[:sort].nil? or viz[:sort]
             smallerDirection = [card_config[:sizex], card_config[:sizey]].min
             diameter = smallerDirection == 1 ? 120 : 150
             render partial: "deckster/chart_cards/radial_card", locals: { viz: viz, diameter: diameter }
