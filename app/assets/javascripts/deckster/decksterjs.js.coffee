@@ -20,19 +20,12 @@ load_card_content = (card_el, type, reload_card = false) ->
     $card_content_el.html('Loading ...') if reload_card
 
     card_content_loaded_url = $card_content_el.attr "data-#{type}-url"
-    console.log card_content_loaded_url
     if card_content_loaded_url?
       on_response = (response) ->
         $card_content_el.html response
         $card_content_el.attr 'data-content-loaded', true
         trigger_event($card_el, "deckster.card-#{type}.loaded")
       $.get card_content_loaded_url, on_response, 'html'
-
-create_card = (card_url) ->
-  console.log "IN CREATE CARD", card_url
-  on_response = (response) ->
-    console.log "html",response
-  $.get card_url, on_response, 'html'
 
 refresh_card = ($widget) ->
 #    USE THIS IF YOU ONLY WANT TO REFRESH ONE VIEW INSTEAD OF BOTH
