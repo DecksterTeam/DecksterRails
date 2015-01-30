@@ -93,10 +93,17 @@ function radialProgress(parent) {
     }
 
     function setLabel(arcIndex, id) {
-        obj = $('#' + id + ' .labels .label')
-        obj.attr("class", "label arc" + arcIndex + "-" + _theme)
+        obj = $('#' + id + ' .labels .label.central')
+        obj.attr("class", "label central arc" + arcIndex + "-" + _theme)
         obj.html(_value[arcIndex] + "%")
         obj.fadeIn()
+
+        if (_style == STYLES.cumulative) {
+            descObj = $('#' + id + ' .labels .label.description')
+            descObj.attr("class", "label description arc" + arcIndex + "-" + _theme)
+            descObj.html(radial_chart_arcDesc[arcIndex])
+            descObj.fadeIn()
+        }
     }
 
     function createLabels(label, svg) {
@@ -110,34 +117,36 @@ function radialProgress(parent) {
             for (i=0; i < _value.length; i++) {
                 legend.append("<div class='radial_legend_bullet'><svg width='10' height='10'><rect width='10' height='10' class='arc" + i + "-" + _theme + "'/></svg> " + radial_chart_arcDesc[i] + "</div>")
             }
-            appendLabel(label, 0, _width/2, _fontSize, "", "none")
+            y = (_style == STYLES.concentric) ? _width/2+_fontSize/3 : _width/2.2+_fontSize/3
+            appendLabel(label, 0, _width/2, y, _fontSize, radial_chart_arcDesc[0], "none")
         }
         else if (_value.length == 1) {
-            appendLabel(label, 0, _width/2, _fontSize, radial_chart_arcDesc[0]);
+            appendLabel(label, 0, _width/2, _width/2+_fontSize/3, _fontSize, radial_chart_arcDesc[0]);
         }
         else if (_value.length == 2) {
-            appendLabel(label, 0, _width/3, _fontSize * .75, radial_chart_arcDesc[0])
-            appendLabel(label, 1, _width/3*2, _fontSize *.75, radial_chart_arcDesc[1]);
+            appendLabel(label, 0, _width/3, _width/2+_fontSize/3, _fontSize * .75, radial_chart_arcDesc[0])
+            appendLabel(label, 1, _width/3*2, _width/2+_fontSize/3, _fontSize *.75, radial_chart_arcDesc[1]);
         }
     }
 
-    function appendLabel(label, index, x = _width/2, fontSize = _fontSize, desc, display="") {
+    function appendLabel(label, index, x = _width/2, y = _width/2+fontSize/3, fontSize = _fontSize, desc, display="") {
         _centralLabel = label.enter().append("text")
-            .attr("class","label arc"+index + "-" + _theme)
-            .attr("y",_width/2+fontSize/3)
+            .attr("class","label central arc"+index + "-" + _theme)
+            .attr("y",y)
             .attr("x",x)
             .attr("width",_width)
             .text(function (d) { return Math.round((_value[index]-_minValue)/(_maxValue-_minValue)*100) + "%" })
             .style("font-size",fontSize+"px")
-            .style("display", display)
+            .style("display", display);
         if (desc) {
             label.enter().append("text")
-                .attr("class","label arc"+index + "-" + _theme)
-                .attr("y",_width/2+fontSize)
+                .attr("class","label description arc"+index + "-" + _theme)
+                .attr("y",y + fontSize * 2 / 3)
                 .attr("x",x)
                 .attr("width",_width)
                 .text(function (d) { return desc; })
                 .style("font-size",fontSize *.6+"px")
+                .style("display", display);
         }
     }
 
