@@ -11,8 +11,8 @@
             .value(<%= content[:percent] %>, <%= index %>)
             .arcDesc("<%= content[:description] %>", <%= index %>)
             <% end %>
-            <% if !viz[:showLegend].nil? %>
-            .showLegend(<%= viz[:showLegend] %>)
+            <% if !viz[:show_legend].nil? %>
+            .showLegend(<%= viz[:show_legend] %>)
             <% end %>
             <% if !viz[:theme].nil? %>
             .theme('<%= viz[:theme] %>')
