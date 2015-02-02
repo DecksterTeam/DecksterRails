@@ -62,17 +62,20 @@ module Deckster
           detail_html: detail_html,
           shared_html: shared_html,
           is_shared_view: shared,
-          visualizations: vizzes,
           row: card_config[:row], col: card_config[:col], sizex: card_config[:sizex],
           sizey: card_config[:sizey], card_classes: card_config[:card_classes],
           display: card_config[:display]
       }
+      locals[:visualizations] = (card_config[:layout_visualizations].nil? or !card_config[:layout_visualizations]) ? vizzes : []
 
       render partial: "deckster/deck/card", locals: locals
     end
 
     def render_deckster_shared_card card_config
       case
+        when (!card_config[:layout_visualizations].nil? and card_config[:layout_visualizations])
+          content = send "render_#{card_config[:card]}_shared_card".to_sym, { visualizations: render_visualization_cards(card_config) }
+          loaded = true
         when [:async, :summary_async].include?(card_config[:load])
           content = 'Loading ...'
           loaded = false
@@ -86,6 +89,9 @@ module Deckster
 
     def render_deckster_summary_card card_config
       case
+        when (!card_config[:layout_visualizations].nil? and card_config[:layout_visualizations])
+          content = send "render_#{card_config[:card]}_summary_card".to_sym, { visualizations: render_visualization_cards(card_config) }
+          loaded = true
         when [:async, :summary_async].include?(card_config[:load])
           content = 'Loading ...'
           loaded = false
@@ -99,6 +105,9 @@ module Deckster
 
     def render_deckster_detail_card card_config
       case
+        when (!card_config[:layout_visualizations].nil? and card_config[:layout_visualizations])
+          content = send "render_#{card_config[:card]}_detail_card".to_sym, { visualizations: render_visualization_cards(card_config) }
+          loaded = true
         when [:async, :detail_async].include?(card_config[:load])
           content = 'Loading ...'
           loaded = false

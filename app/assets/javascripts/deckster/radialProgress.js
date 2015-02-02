@@ -77,9 +77,7 @@ function radialProgress(parent) {
         if (_showLegend || (_value.length > 2 && _showLegend == null) || _style == STYLES.cumulative) {
             with({id: _id}) {
                 appendedPath
-                    .on("mouseenter", function() {
-                        setLabel(index, id)
-                    })
+                    .on("mouseenter", function() { setLabel(index, id) })
                     .on("mouseout", function() { mouseOut(id); })
             }
         }
