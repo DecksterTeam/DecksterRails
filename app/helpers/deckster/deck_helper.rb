@@ -71,7 +71,8 @@ module Deckster
           is_shared_view: shared,
           row: card_config[:row], col: card_config[:col], sizex: card_config[:sizex],
           sizey: card_config[:sizey], card_classes: card_config[:card_classes],
-          display: card_config[:display]
+          display: card_config[:display],
+          expandable: (card_config[:expandable].nil? or card_config[:expandable])
       }
       locals[:visualizations] = (card_config[:layout_visualizations].nil? or !card_config[:layout_visualizations]) ? vizzes : []
 
