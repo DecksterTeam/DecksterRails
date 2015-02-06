@@ -27,7 +27,7 @@ radial_chart_paths = {};
 radial_chart_outerRadiuses = {};
 
 function radialProgress(parent) {
-    var STYLES = {concentric: 'concentric', cumulative: 'cumulative'}
+    var STYLES = {concentric: 'concentric', cumulative: 'cumulative', pie: 'pie'}
     var THEMES = {blue: 'blue', green: 'green'}
 
     var _data=null,
@@ -74,7 +74,7 @@ function radialProgress(parent) {
             .attr("transform", "translate(" + _width/2 + "," + _width/2 + ")")
             .attr("d", arc);
 
-        if (_showLegend || (_value.length > 2 && _showLegend == null) || _style == STYLES.cumulative) {
+        if (_showLegend || (_value.length > 2 && _showLegend == null) || _style == STYLES.cumulative || _style == STYLES.pie) {
             with({id: _id}) {
                 appendedPath
                     .on("mouseenter", function() { setLabel(index, id) })
@@ -96,7 +96,7 @@ function radialProgress(parent) {
         obj.html(_value[arcIndex] + "%")
         obj.fadeIn()
 
-        if (_style == STYLES.cumulative) {
+        if (_style == STYLES.cumulative || _style == STYLES.pie) {
             descObj = $('#' + id + ' .labels .label.description')
             descObj.attr("class", "label description arc" + arcIndex + "-" + _theme)
             descObj.html(radial_chart_arcDesc[arcIndex])
@@ -208,7 +208,7 @@ function radialProgress(parent) {
                     var endAngle=Math.min(360*ratio,360);
                     endAngle=endAngle * Math.PI/180;
                 }
-                else if (_style == STYLES.cumulative) {
+                else if (_style == STYLES.cumulative || _style == STYLES.pie) {
                     endAngle = radial_chart_outerRadiuses[id][index+1];
                 }
 
@@ -259,14 +259,14 @@ function radialProgress(parent) {
         _fontSize=_width*.2;
         radial_chart_arcs[_id] = [];
 
-        widthOfCircle = _width/2 * .15;
+        _widthOfArc = _width/2 * .15;
 
         if (_style == STYLES.concentric) {
             while (radial_chart_arcs[_id].length < _value.length)
                 createArc(0,0);
-            delta = widthOfCircle;
+            delta = _widthOfArc;
         }
-        else if (_style == STYLES.cumulative) {
+        else if (_style == STYLES.cumulative || _style == STYLES.pie) {
             delta = 0;
             offset = 0;
             i = 0;
@@ -280,6 +280,9 @@ function radialProgress(parent) {
                 radial_chart_outerRadiuses[_id].push(endAngle);
                 i++;
             }
+
+            if (_style == STYLES.pie)
+                fixedInnerRadius = 0;
         }
 
         if (radial_chart_outerRadiuses[_id] == undefined)
@@ -289,7 +292,7 @@ function radialProgress(parent) {
 
         for (i = 0; i < radial_chart_arcs[_id].length; i++) {
             radial_chart_arcs[_id][i].outerRadius(previousInnerRadius);
-            radial_chart_arcs[_id][i].innerRadius(previousInnerRadius - widthOfCircle - 1);
+            radial_chart_arcs[_id][i].innerRadius((typeof fixedInnerRadius === 'undefined') ? previousInnerRadius - _widthOfArc - 1 : 0);
             if (_style == STYLES.concentric) {
                 radial_chart_outerRadiuses[_id].push(previousInnerRadius);
             }

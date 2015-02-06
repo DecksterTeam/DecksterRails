@@ -126,6 +126,18 @@ module Deckster
             end
             diameter = card_config[:diameter]
             render partial: "deckster/chart_cards/radial_card", locals: { viz: viz, diameter: diameter }
+          when 'pie'
+            viz[:content] = [ (send viz[:data_source]) ].flatten
+            viz[:content].sort_by! do |item| item[:percent] end if viz[:sort].nil? or viz[:sort]
+
+            #fill circle
+            percentages = viz[:content].map{|item| item[:percent]}
+            total = percentages.sum
+            viz[:content].map!{|item| item[:percent] = item[:percent] * 1.0 / total * 100; item }
+
+            diameter = card_config[:diameter]
+            viz[:style] = 'pie'
+            render partial: "deckster/chart_cards/radial_card", locals: { viz: viz, diameter: diameter }
           else
             'DID NOT WORK'
         end

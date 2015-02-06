@@ -60,7 +60,6 @@ init = (custom_opts={}) ->
   window.grid = gridster
   $hidden_cards = {}
 
-  setupCardSearch()
   extendPopover()
 
   gridster.$widgets.each () ->
@@ -156,10 +155,6 @@ init = (custom_opts={}) ->
     setTimeout(callback, 2000)
   )
 
-refreshCardSearch = () ->
-  $('#deck_controls_title_search').html("<option></option>")
-  setupCardSearch()
-
 setupPopover = () ->
   $('#popover_example').popover({url: '/deckster/card/balloons_summary', params: {layout: false, a:1, b:2}, title: "Title!", popoverId: '#popover_example'})
 
@@ -185,7 +180,5 @@ extendPopover = () ->
 
 window.decksterjs =
   init: init
-  refreshDeck: refreshDeck
-  refreshCardSearch: refreshCardSearch
   setupPopover: setupPopover
   extendPopover: extendPopover
