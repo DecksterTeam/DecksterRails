@@ -43,14 +43,9 @@ module Deckster
       #           {type: 'radial', title: 'Friends', data_source: 'collect_friends_data', description: 'friend desc'},
       #           {type: 'radial', title: 'Enemies', data_source: 'collect_enemies_data', description: 'enemy desc'}
       #         ]
-      # :layout_visualizations => boolean value - render visualizations in custom layout (provides vis data in array to partial)
 
       card_config[:title] ||= card_config[:card].to_s.titleize
       card_config[:load] ||= :fully
-
-      unless card_config[:visualizations].nil?
-        vizzes = render_visualization_cards card_config
-      end
 
       shared = !card_config[:sharedView].nil? and card_config[:sharedView]
       if shared
@@ -74,16 +69,12 @@ module Deckster
           display: card_config[:display],
           expandable: (card_config[:expandable].nil? or card_config[:expandable])
       }
-      locals[:visualizations] = (card_config[:layout_visualizations].nil? or !card_config[:layout_visualizations]) ? vizzes : []
 
       render partial: "deckster/deck/card", locals: locals
     end
 
     def render_deckster_shared_card card_config
       case
-        when (!card_config[:layout_visualizations].nil? and card_config[:layout_visualizations])
-          content = send "render_#{card_config[:card]}_shared_card".to_sym, { visualizations: render_visualization_cards(card_config) }
-          loaded = true
         when [:async, :summary_async].include?(card_config[:load])
           content = 'Loading ...'
           loaded = false
@@ -97,9 +88,6 @@ module Deckster
 
     def render_deckster_summary_card card_config
       case
-        when (!card_config[:layout_visualizations].nil? and card_config[:layout_visualizations])
-          content = send "render_#{card_config[:card]}_summary_card".to_sym, { visualizations: render_visualization_cards(card_config) }
-          loaded = true
         when [:async, :summary_async].include?(card_config[:load])
           content = 'Loading ...'
           loaded = false
@@ -113,9 +101,6 @@ module Deckster
 
     def render_deckster_detail_card card_config
       case
-        when (!card_config[:layout_visualizations].nil? and card_config[:layout_visualizations])
-          content = send "render_#{card_config[:card]}_detail_card".to_sym, { visualizations: render_visualization_cards(card_config) }
-          loaded = true
         when [:async, :detail_async].include?(card_config[:load])
           content = 'Loading ...'
           loaded = false
@@ -139,8 +124,7 @@ module Deckster
               total = percentages.sum
               viz[:content].map!{|item| item[:percent] = item[:percent] * 1.0 / total * 100; item }
             end
-            smallerDirection = [card_config[:sizex], card_config[:sizey]].min
-            diameter = smallerDirection == 1 ? 120 : 150
+            diameter = card_config[:diameter]
             render partial: "deckster/chart_cards/radial_card", locals: { viz: viz, diameter: diameter }
           else
             'DID NOT WORK'

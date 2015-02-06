@@ -30,13 +30,6 @@
     </div>
   </nav>
   <div class="deckster-content">
-    <% if !visualizations.nil? %>
-      <div class="radial-card">
-        <% visualizations.each do |viz| %>
-            <%= viz %>
-        <% end %>
-      </div>
-    <% end %>
     <% if is_shared_view %>
     <%= shared_html %>
     <% end %>
