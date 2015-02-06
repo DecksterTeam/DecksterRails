@@ -25,6 +25,7 @@ load_card_content = (card_el, type, reload_card = false) ->
         $card_content_el.html response
         $card_content_el.attr 'data-content-loaded', true
         trigger_event($card_el, "deckster.card-#{type}.loaded")
+        setupPopover() if $card_el.context.id == 'streamers'
       $.get card_content_loaded_url, on_response, 'html'
 
 init = (custom_opts={}) ->
@@ -47,6 +48,7 @@ init = (custom_opts={}) ->
   window.grid = gridster
 
   setupCardSearch()
+  extendPopover()
 
   gridster.$widgets.each () ->
     $widget = $(this)
@@ -105,7 +107,7 @@ init = (custom_opts={}) ->
 refreshCard = ($widget) ->
 #    USE THIS IF YOU ONLY WANT TO REFRESH ONE VIEW INSTEAD OF BOTH
 #    is_expanded = $widget.attr 'data-expanded'
-#    $card_type = if is_expanded then 'detail' else 'summary'
+#    card_type = if is_expanded then 'detail' else 'summary'
 
   card_types = ['detail', 'summary']
   for card_type in card_types
@@ -139,7 +141,36 @@ setupCardSearch = () ->
     setTimeout(callback, 2000)
   )
 
+refreshCardSearch = () ->
+  $('#deck_controls_title_search').html("<option></option>")
+  setupCardSearch()
+
+setupPopover = () ->
+  $('#popover_example').popover({url: '/deckster/card/balloons_summary', params: {layout: false, a:1, b:2}, title: "Title!", popoverId: '#popover_example'})
+
+extendPopover = () ->
+  tmp = $.fn.popover.Constructor.prototype.show;
+
+  $.fn.popover.Constructor.prototype.show = () ->
+    if (this.options.url and this.options.popoverId)
+      url = this.options.url
+      popoverId = this.options.popoverId
+      params = this.options.params if this.options.params
+      this.options.content = "Loading..."
+
+    tmp.call(this);
+
+    if (this.options.url and this.options.popoverId)
+      on_response = (data) ->
+        #I find this line slightly hacky. It assumes that bootstrap will always generate the popover
+        #div and contents immediately after where it is declared. While this is true now, it may not
+        #be true forever
+        $(popoverId).next().find('.popover-content').html(data)
+      $.get url, params, on_response, 'html'
+
 window.decksterjs =
   init: init
   refreshDeck: refreshDeck
-  setupCardSearch: setupCardSearch
+  refreshCardSearch: refreshCardSearch
+  setupPopover: setupPopover
+  extendPopover: extendPopover
