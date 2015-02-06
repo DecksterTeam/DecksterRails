@@ -1,15 +1,15 @@
 ###*
-  This is a helper function to trigger the specified event on a given element
-  @param {el} The element to trigger the event on
-  @param {event} The event to trigger
+#  This is a helper function to trigger the specified event on a given element
+#  @param {el} The element to trigger the event on
+#  @param {event} The event to trigger
 ###
 trigger_event = (el, event) ->
   $(el).trigger(event)
 
 ###*
-  This function will load content of specified type into the card
-  @param {card_el} The card element that is the parent of the summary and detail sections
-  @param {type} The section of the card that you would like to load (summary or detail)
+#  This function will load content of specified type into the card
+#  @param {card_el} The card element that is the parent of the summary and detail sections
+#  @param {type} The section of the card that you would like to load (summary or detail)
 ###
 load_card_content = (card_el, type, reload_card = false) ->
   $card_el = $(card_el)
@@ -25,6 +25,7 @@ load_card_content = (card_el, type, reload_card = false) ->
         $card_content_el.html response
         $card_content_el.attr 'data-content-loaded', true
         trigger_event($card_el, "deckster.card-#{type}.loaded")
+        setupPopover() if $card_el.context.id == 'streamers'
       $.get card_content_loaded_url, on_response, 'html'
 
 refresh_card = ($widget) ->
@@ -40,7 +41,6 @@ refresh_deck = () ->
   $('.deckster-card').each( (index, value)-> refresh_card($(value)) )
 
 init = (custom_opts={}) ->
-
   gridster_options =
     widget_selector: '.deckster-card'
     widget_margins: [10, 10]
@@ -59,6 +59,9 @@ init = (custom_opts={}) ->
 
   window.grid = gridster
   $hidden_cards = {}
+
+  setupCardSearch()
+  extendPopover()
 
   gridster.$widgets.each () ->
     $widget = $(this)
@@ -153,6 +156,36 @@ init = (custom_opts={}) ->
     setTimeout(callback, 2000)
   )
 
+refreshCardSearch = () ->
+  $('#deck_controls_title_search').html("<option></option>")
+  setupCardSearch()
+
+setupPopover = () ->
+  $('#popover_example').popover({url: '/deckster/card/balloons_summary', params: {layout: false, a:1, b:2}, title: "Title!", popoverId: '#popover_example'})
+
+extendPopover = () ->
+  tmp = $.fn.popover.Constructor.prototype.show;
+
+  $.fn.popover.Constructor.prototype.show = () ->
+    if (this.options.url and this.options.popoverId)
+      url = this.options.url
+      popoverId = this.options.popoverId
+      params = this.options.params if this.options.params
+      this.options.content = "Loading..."
+
+    tmp.call(this);
+
+    if (this.options.url and this.options.popoverId)
+      on_response = (data) ->
+        #I find this line slightly hacky. It assumes that bootstrap will always generate the popover
+        #div and contents immediately after where it is declared. While this is true now, it may not
+        #be true forever
+        $(popoverId).next().find('.popover-content').html(data)
+      $.get url, params, on_response, 'html'
+
 window.decksterjs =
   init: init
-  refresh_deck: refresh_deck
+  refreshDeck: refreshDeck
+  refreshCardSearch: refreshCardSearch
+  setupPopover: setupPopover
+  extendPopover: extendPopover
