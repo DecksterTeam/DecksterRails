@@ -128,7 +128,7 @@ function radialProgress(parent) {
         }
     }
 
-    function appendLabel(label, index, x = _width/2, y = _width/2+fontSize/3, fontSize = _fontSize, desc, display="") {
+    function appendLabel(label, index, x, y, fontSize, desc, display) {
         _centralLabel = label.enter().append("text")
             .attr("class","label central arc"+index + "-" + _theme)
             .attr("y",y)
