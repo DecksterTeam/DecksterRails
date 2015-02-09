@@ -24,7 +24,6 @@ module Deckster
       # :detail_url => convention override for the detail card
       # :card_classes => custom css class(es) to add to the card wrapper
       # :sharedView = boolean value - renders one view for both expanded and summary view.
-      # :defaultLoad => boolean value - load card on default dashboard
       # :visibility => string value - card css visibility
       # :visualizations => Array of Objects (visualizations)
       #       Visualization Object:

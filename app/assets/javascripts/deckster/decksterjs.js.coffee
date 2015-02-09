@@ -1,3 +1,5 @@
+deck = {}
+
 ###*
 #  This is a helper function to trigger the specified event on a given element
 #  @param {el} The element to trigger the event on
@@ -39,6 +41,17 @@ refresh_card = ($widget) ->
 refresh_deck = () ->
   $('.deckster-card').each( (index, value)-> refresh_card($(value)) )
 
+add_card = (key, card) ->
+  deck[key] = card
+
+get_card_state = (card) ->
+  cardId = card.attr('id')
+  if (deck[cardId])
+    deck[cardId].get_state()
+  else
+    {}
+
+
 init = (custom_opts={}) ->
   gridster_options =
     widget_selector: '.deckster-card'
@@ -51,6 +64,21 @@ init = (custom_opts={}) ->
     #helper: 'clone'
     draggable:
       handle: '.deckster-card-title, .deckster-card-draggable'
+    resize: {
+      enabled:true
+    }
+    serialize_params: ($w, wgd) ->
+      card = $($w)
+      cardInfo = {
+        id: card.attr('id'),
+        col: wgd.col,
+        row: wgd.row,
+        size_x: wgd.size_x,
+        size_y: wgd.size_y,
+        display: card.css('display')
+      }
+      cardState = get_card_state(card)
+      $.extend(cardInfo, cardState)
 
   $.extend(gridster_options, custom_opts)
 
@@ -174,6 +202,11 @@ extendPopover = () ->
         $(popoverId).next().find('.popover-content').html(data)
       $.get url, params, on_response, 'html'
 
+serialize = () ->
+  console.log(grid.serialize())
+
 window.decksterjs =
   init: init
-  extendPopover: extendPopover
+  serialize: serialize
+  add_card: add_card
+  deck: deck
