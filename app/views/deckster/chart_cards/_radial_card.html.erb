@@ -1,0 +1,27 @@
+<!--<div>type, title, description, content-->
+
+<div id="<%= viz[:id] %>" class="chart"></div>
+
+<script>
+    radialProgress(document.getElementById('<%= viz[:id] %>'))
+            .id('<%= viz[:id] %>')
+            .label("<%= viz[:title] %>")
+            .diameter(<%= diameter %>)
+            <% viz[:content].each_with_index do |content, index| %>
+            .value(<%= content[:percent] %>, <%= index %>)
+            .arcDesc("<%= content[:description] %>", <%= index %>)
+            <% end %>
+            <% if !viz[:show_legend].nil? %>
+            .showLegend(<%= viz[:show_legend] %>)
+            <% end %>
+            <% if !viz[:theme].nil? %>
+            .theme('<%= viz[:theme] %>')
+            <% end %>
+            <% if !viz[:style].nil? %>
+            .style('<%= viz[:style] %>')
+            <% end %>
+            <% if !viz[:description].nil? %>
+            .description('<%= viz[:description] %>')
+            <% end %>
+            .render();
+</script>

@@ -1,0 +1,7 @@
+.radial-card {
+    text-align: center;
+}
+
+.radial-card .chart {
+    display: inline-block;
+}

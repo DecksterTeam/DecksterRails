@@ -3,7 +3,7 @@
     <!-- I'm sure there's a better way to display this, but... google doesn't want to tell me. QQ -->
     Deck Controls:
     <% if deck_config[:controls].include? 'refresh' %>
-        <a title="Refresh" onclick="decksterjs.refreshDeck()"><i class="fa fa-rotate-right"></i></a>
+        <a title="Refresh" onclick="decksterjs.refresh_deck()"><i class="fa fa-rotate-right"></i></a>
     <% end %>
 
     <% if deck_config[:controls].include? 'search' %>

@@ -17,3 +17,4 @@
 //= require deckster/decksterjs
 //= require deckster/d3
 //= require deckster/chosen.jquery.min
+//= require deckster/radialProgress

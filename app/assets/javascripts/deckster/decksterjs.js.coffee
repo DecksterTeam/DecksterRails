@@ -25,8 +25,19 @@ load_card_content = (card_el, type, reload_card = false) ->
         $card_content_el.html response
         $card_content_el.attr 'data-content-loaded', true
         trigger_event($card_el, "deckster.card-#{type}.loaded")
-        setupPopover() if $card_el.context.id == 'streamers'
       $.get card_content_loaded_url, on_response, 'html'
+
+refresh_card = ($widget) ->
+#    USE THIS IF YOU ONLY WANT TO REFRESH ONE VIEW INSTEAD OF BOTH
+#    is_expanded = $widget.attr 'data-expanded'
+#    $card_type = if is_expanded then 'detail' else 'summary'
+
+  card_types = ['detail', 'summary']
+  for card_type in card_types
+    load_card_content $widget, card_type, true
+
+refresh_deck = () ->
+  $('.deckster-card').each( (index, value)-> refresh_card($(value)) )
 
 init = (custom_opts={}) ->
   gridster_options =
@@ -46,8 +57,8 @@ init = (custom_opts={}) ->
   gridster = $(".gridster").gridster(gridster_options).data 'gridster'
 
   window.grid = gridster
+  $hidden_cards = {}
 
-  setupCardSearch()
   extendPopover()
 
   gridster.$widgets.each () ->
@@ -102,35 +113,37 @@ init = (custom_opts={}) ->
   gridster.$el.on 'click', '> .deckster-card .deckster-controls .deckster-refresh-handle', () ->
     $button = $(this)
     $widget = $button.parents '.deckster-card'
-    refreshCard($widget)
+    refresh_card($widget)
 
-refreshCard = ($widget) ->
-#    USE THIS IF YOU ONLY WANT TO REFRESH ONE VIEW INSTEAD OF BOTH
-#    is_expanded = $widget.attr 'data-expanded'
-#    card_type = if is_expanded then 'detail' else 'summary'
+  gridster.$el.on 'click', '> .deckster-card .deckster-controls .deckster-hide-handle', () ->
+    $button = $(this)
+    $widget = $button.parents '.deckster-card'
+    $hidden_cards[$widget.attr('id')] = { widget: $widget, serialized_data: gridster.serialize($widget)[0] }
+    gridster.remove_widget($widget)
 
-  card_types = ['detail', 'summary']
-  for card_type in card_types
-    load_card_content $widget, card_type, true
-
-refreshDeck = () ->
-  $('.deckster-card').each( (index, value)-> refreshCard($(value)) )
-
-setupCardSearch = () ->
+  #setup card search data
   seen_values = []
   $('.deckster-card').each (index, value) ->
     val = $(value).data("title")
+    id = $(value).attr("id")
     if seen_values.indexOf(val) == -1
       $('#deck_controls_title_search')
       .append($("<option></option>", {
-          value: val,
+          value: id,
           text: val
         }))
       seen_values.push val
 
+  #setup card search event
   $('#deck_controls_title_search').chosen().change(() ->
-    value = $(this).val()
-    card = $(".deckster-card[data-title='#{value}']")
+    id = $(this).val()
+    card = $("##{id}")
+    if card.length == 0 and $hidden_cards[id]
+      hidden_card = $hidden_cards[id]
+      pos_data = hidden_card.serialized_data
+      card = gridster.add_widget(hidden_card.widget, pos_data.size_x, pos_data.size_y, pos_data.col, pos_data.row)
+      delete $hidden_cards[id]
+    card.fadeIn()
 
     #scroll to the card
     $('html,body').animate({scrollTop: card.offset().top-10 })
@@ -140,13 +153,6 @@ setupCardSearch = () ->
     callback = () -> card.removeClass("selected")
     setTimeout(callback, 2000)
   )
-
-refreshCardSearch = () ->
-  $('#deck_controls_title_search').html("<option></option>")
-  setupCardSearch()
-
-setupPopover = () ->
-  $('#popover_example').popover({url: '/deckster/card/balloons_summary', params: {layout: false, a:1, b:2}, title: "Title!", popoverId: '#popover_example'})
 
 extendPopover = () ->
   tmp = $.fn.popover.Constructor.prototype.show;
@@ -170,7 +176,4 @@ extendPopover = () ->
 
 window.decksterjs =
   init: init
-  refreshDeck: refreshDeck
-  refreshCardSearch: refreshCardSearch
-  setupPopover: setupPopover
   extendPopover: extendPopover

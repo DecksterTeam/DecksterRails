@@ -24,6 +24,25 @@ module Deckster
       # :detail_url => convention override for the detail card
       # :card_classes => custom css class(es) to add to the card wrapper
       # :sharedView = boolean value - renders one view for both expanded and summary view.
+      # :defaultLoad => boolean value - load card on default dashboard
+      # :visibility => string value - card css visibility
+      # :visualizations => Array of Objects (visualizations)
+      #       Visualization Object:
+      #         - id: id of chart (must be unique)
+      #         - type: string, options: 'radial'
+      #         - title: string
+      #         - data_source: string
+      #         - description: string
+      #         - show_legend: boolean, defaults to true for visualizations with 3+ arcs
+      #         - theme: string, determines color of arcs. options: 'blue' (default), 'green'
+      #         - style: string, options: 'concentric' (default), 'cumulative'
+      #         - sort: boolean, defaults to true. Sorts arcs so largest is on the outside of the circle.
+      #         - fill: boolean, adjust raw data values to percentages
+      #       Example:
+      #         people_visualizations = [
+      #           {type: 'radial', title: 'Friends', data_source: 'collect_friends_data', description: 'friend desc'},
+      #           {type: 'radial', title: 'Enemies', data_source: 'collect_enemies_data', description: 'enemy desc'}
+      #         ]
 
       card_config[:title] ||= card_config[:card].to_s.titleize
       card_config[:load] ||= :fully
@@ -39,15 +58,19 @@ module Deckster
         detail_html = render_deckster_detail_card card_config
       end
 
-      render partial: "deckster/deck/card", locals: {
+      locals = {
           sym: card_config[:card], title: card_config[:title], tooltip: card_config[:tooltip],
           summary_html: summary_html,
           detail_html: detail_html,
           shared_html: shared_html,
           is_shared_view: shared,
           row: card_config[:row], col: card_config[:col], sizex: card_config[:sizex],
-          sizey: card_config[:sizey], card_classes: card_config[:card_classes]
+          sizey: card_config[:sizey], card_classes: card_config[:card_classes],
+          display: card_config[:display],
+          expandable: (card_config[:expandable].nil? or card_config[:expandable])
       }
+
+      render partial: "deckster/deck/card", locals: locals
     end
 
     def render_deckster_shared_card card_config
@@ -87,6 +110,38 @@ module Deckster
       end
 
       "<div class='deckster-detail' style='display:none;' data-detail-url='#{card_config[:detail_url]}' data-content-loaded=#{loaded}>#{content}</div>".html_safe
+    end
+
+    def render_visualization_cards card_config
+      data = card_config[:visualizations]
+      data.map {|viz|
+        case viz[:type]
+          when 'radial'
+            viz[:content] = [ (send viz[:data_source]) ].flatten
+            viz[:content].sort_by! do |item| -item[:percent] end if viz[:sort].nil? or viz[:sort]
+            if !viz[:fill].nil? and viz[:fill]
+              percentages = viz[:content].map{|item| item[:percent]}
+              total = percentages.sum
+              viz[:content].map!{|item| item[:percent] = item[:percent] * 1.0 / total * 100; item }
+            end
+            diameter = card_config[:diameter]
+            render partial: "deckster/chart_cards/radial_card", locals: { viz: viz, diameter: diameter }
+          when 'pie'
+            viz[:content] = [ (send viz[:data_source]) ].flatten
+            viz[:content].sort_by! do |item| item[:percent] end if viz[:sort].nil? or viz[:sort]
+
+            #fill circle
+            percentages = viz[:content].map{|item| item[:percent]}
+            total = percentages.sum
+            viz[:content].map!{|item| item[:percent] = item[:percent] * 1.0 / total * 100; item }
+
+            diameter = card_config[:diameter]
+            viz[:style] = 'pie'
+            render partial: "deckster/chart_cards/radial_card", locals: { viz: viz, diameter: diameter }
+          else
+            'DID NOT WORK'
+        end
+      }
     end
   end
 end
