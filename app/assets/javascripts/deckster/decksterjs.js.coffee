@@ -25,7 +25,6 @@ load_card_content = (card_el, type, reload_card = false) ->
         $card_content_el.html response
         $card_content_el.attr 'data-content-loaded', true
         trigger_event($card_el, "deckster.card-#{type}.loaded")
-        setupPopover() if $card_el.context.id == 'streamers'
       $.get card_content_loaded_url, on_response, 'html'
 
 refresh_card = ($widget) ->
@@ -155,9 +154,6 @@ init = (custom_opts={}) ->
     setTimeout(callback, 2000)
   )
 
-setupPopover = () ->
-  $('#popover_example').popover({url: '/deckster/card/balloons_summary', params: {layout: false, a:1, b:2}, title: "Title!", popoverId: '#popover_example'})
-
 extendPopover = () ->
   tmp = $.fn.popover.Constructor.prototype.show;
 
@@ -180,5 +176,4 @@ extendPopover = () ->
 
 window.decksterjs =
   init: init
-  setupPopover: setupPopover
   extendPopover: extendPopover
