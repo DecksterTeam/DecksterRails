@@ -91,6 +91,8 @@ function radialProgress(parent) {
     }
 
     function setLabel(arcIndex, id) {
+        if (id == 'icecream_radial_chart')
+            console.log("IN SETLABEL", arcIndex, id)
         theme = (_style == STYLES.pie) ? 'white' : 'arc' + arcIndex + '-' + _theme
         obj = $('#' + id + ' .labels .label.central')
         obj.attr("class", "label central " + theme)
@@ -126,9 +128,13 @@ function radialProgress(parent) {
             appendLabel(label, 0, _width/3, _width/2+_fontSize/3, _fontSize * .75, radial_chart_arcDesc[0])
             appendLabel(label, 1, _width/3*2, _width/2+_fontSize/3, _fontSize *.75, radial_chart_arcDesc[1]);
         }
+        else if (_style == STYLES.cumulative || _style == STYLES.pie) {
+            y = _width/2.2+_fontSize/3
+            appendLabel(label, 0, _width/2, y, _fontSize, radial_chart_arcDesc[0], "none")
+        }
     }
 
-    function appendLabel(label, index, x = _width/2, y = _width/2+fontSize/3, fontSize = _fontSize, desc, display="") {
+    function appendLabel(label, index, x, y, fontSize, desc, display) {
         _centralLabel = label.enter().append("text")
             .attr("class","label central arc"+index + "-" + _theme)
             .attr("y",y)
