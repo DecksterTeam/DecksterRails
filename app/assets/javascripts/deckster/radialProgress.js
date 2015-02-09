@@ -91,14 +91,15 @@ function radialProgress(parent) {
     }
 
     function setLabel(arcIndex, id) {
+        theme = (_style == STYLES.pie) ? 'white' : 'arc' + arcIndex + '-' + _theme
         obj = $('#' + id + ' .labels .label.central')
-        obj.attr("class", "label central arc" + arcIndex + "-" + _theme)
+        obj.attr("class", "label central " + theme)
         obj.html(_value[arcIndex] + "%")
         obj.fadeIn()
 
         if (_style == STYLES.cumulative || _style == STYLES.pie) {
             descObj = $('#' + id + ' .labels .label.description')
-            descObj.attr("class", "label description arc" + arcIndex + "-" + _theme)
+            descObj.attr("class", "label description " + theme)
             descObj.html(radial_chart_arcDesc[arcIndex])
             descObj.fadeIn()
         }
