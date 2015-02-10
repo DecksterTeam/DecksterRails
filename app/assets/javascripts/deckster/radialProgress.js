@@ -91,8 +91,6 @@ function radialProgress(parent) {
     }
 
     function setLabel(arcIndex, id) {
-        if (id == 'icecream_radial_chart')
-            console.log("IN SETLABEL", arcIndex, id)
         theme = (_style == STYLES.pie) ? 'white' : 'arc' + arcIndex + '-' + _theme
         obj = $('#' + id + ' .labels .label.central')
         obj.attr("class", "label central " + theme)

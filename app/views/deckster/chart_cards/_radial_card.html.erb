@@ -6,7 +6,7 @@
     radialProgress(document.getElementById('<%= viz[:id] %>'))
             .id('<%= viz[:id] %>')
             .label("<%= viz[:title] %>")
-            .diameter(<%= diameter %>)
+            .diameter(<%= viz[:diameter] %>)
             <% viz[:content].each_with_index do |content, index| %>
             .value(<%= content[:percent] %>, <%= index %>)
             .arcDesc("<%= content[:description] %>", <%= index %>)

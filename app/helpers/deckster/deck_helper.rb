@@ -95,7 +95,6 @@ module Deckster
     end
 
     def render_visualization_cards card_config
-      # :diameter => integer
       # :visualizations => Array of Objects (visualizations)
       #       Visualization Object:
       #         - id: id of chart (must be unique)
@@ -108,6 +107,7 @@ module Deckster
       #         - style: string, options: 'concentric' (default), 'cumulative'
       #         - sort: boolean, defaults to true. Sorts arcs so largest is on the outside of the circle.
       #         - fill: boolean, adjust raw data values to percentages
+      #         - diameter: integer, diameter of radial chart. Defaults to 120.
       #       Example:
       #         people_visualizations = [
       #           {type: 'radial', title: 'Friends', data_source: 'collect_friends_data', description: 'friend desc'},
@@ -126,8 +126,9 @@ module Deckster
               total = percentages.sum
               viz[:content].map!{|item| item[:percent] = item[:percent] * 1.0 / total * 100; item }
             end
-            diameter = card_config[:diameter]
-            render partial: "deckster/chart_cards/radial_card", locals: { viz: viz, diameter: diameter }
+            viz[:diameter] ||= 120
+
+            render partial: "deckster/chart_cards/radial_card", locals: { viz: viz}
           when 'pie'
             viz[:content] = [ (send viz[:data_source]) ].flatten
             viz[:content].sort_by! do |item| item[:percent] end if viz[:sort].nil? or viz[:sort]
@@ -136,10 +137,10 @@ module Deckster
             percentages = viz[:content].map{|item| item[:percent]}
             total = percentages.sum
             viz[:content].map!{|item| item[:percent] = item[:percent] * 1.0 / total * 100; item }
-
-            diameter = card_config[:diameter]
             viz[:style] = 'pie'
-            render partial: "deckster/chart_cards/radial_card", locals: { viz: viz, diameter: diameter }
+            viz[:diameter] ||= 120
+
+            render partial: "deckster/chart_cards/radial_card", locals: { viz: viz }
           else
             'DID NOT WORK'
         end
