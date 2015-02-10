@@ -113,12 +113,32 @@ module Deckster
     end
 
     def render_visualization_cards card_config
+      # :diameter => integer
+      # :visualizations => Array of Objects (visualizations)
+      #       Visualization Object:
+      #         - id: id of chart (must be unique)
+      #         - type: string, options: 'radial'
+      #         - title: string
+      #         - data_source: string
+      #         - description: string
+      #         - show_legend: boolean, defaults to true for visualizations with 3+ arcs
+      #         - theme: string, determines color of arcs. options: 'blue' (default), 'green'
+      #         - style: string, options: 'concentric' (default), 'cumulative'
+      #         - sort: boolean, defaults to true. Sorts arcs so largest is on the outside of the circle.
+      #         - fill: boolean, adjust raw data values to percentages
+      #       Example:
+      #         people_visualizations = [
+      #           {type: 'radial', title: 'Friends', data_source: 'collect_friends_data', description: 'friend desc'},
+      #           {type: 'radial', title: 'Enemies', data_source: 'collect_enemies_data', description: 'enemy desc'}
+      #         ]
+
       data = card_config[:visualizations]
       data.map {|viz|
         case viz[:type]
           when 'radial'
-            viz[:content] = [ (send viz[:data_source]) ].flatten
+            viz[:content] = viz[:data_params].nil? ? [ send(viz[:data_source]) ].flatten : [ send(viz[:data_source], *[viz[:data_params]]) ].flatten
             viz[:content].sort_by! do |item| -item[:percent] end if viz[:sort].nil? or viz[:sort]
+
             if !viz[:fill].nil? and viz[:fill]
               percentages = viz[:content].map{|item| item[:percent]}
               total = percentages.sum
