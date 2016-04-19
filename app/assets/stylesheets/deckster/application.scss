@@ -9,9 +9,13 @@
  * compiled file, but it's generally better to create a new file per style scope.
  *
  *= require_self
+ *= require deckster/gridster
  *= require deckster/svg_icons
  *= require deckster/deck
+ *= require deckster/cards
+ *= require deckster/chosen
+ *= require deckster/radial_style
  */
  
 @import "bootstrap";
-@import "font-awesome"
+@import "font-awesome";

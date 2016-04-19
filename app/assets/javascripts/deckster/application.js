@@ -15,3 +15,6 @@
 //= require deckster/bootstrap-sprockets
 //= require deckster/gridster
 //= require deckster/decksterjs
+//= require deckster/d3
+//= require deckster/chosen.jquery.min
+//= require deckster/radialProgress

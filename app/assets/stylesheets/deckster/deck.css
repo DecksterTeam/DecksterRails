@@ -1,5 +1,13 @@
 .deckster-card {
     overflow: auto;
+    -moz-transition:background-color 2s;
+    -webkit-transition:background-color 2s;
+    -o-transition:background-color 2s;
+    transition:background-color 2s;
+}
+
+.deckster-card.selected{
+    background-color: lightblue;
 }
 
 .deckster-card-title {
@@ -14,4 +22,13 @@
 
 .deckster-control {
 	cursor: pointer;
+}
+
+.deckster-content {
+    overflow-y: auto;
+    height: calc(100% - 100px);
+}
+
+#deck_controls_title_search {
+    width: 200px;
 }
