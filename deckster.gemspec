@@ -10,8 +10,8 @@ Gem::Specification.new do |s|
   s.authors     = ["Greg Hochard"]
   s.email       = ["hochardga@gmail.com"]
   s.homepage    = "http://decksterteam.github.io/DecksterRails/"
-  s.summary     = "TODO: Summary of Deckster."
-  s.description = "TODO: Description of Deckster."
+  s.summary     = "Deckster is an application kickstarter"
+  s.description = "Deckster is an application kickstarter"
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
   s.test_files = Dir["test/**/*"]
